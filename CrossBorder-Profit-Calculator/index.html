@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>跨境电商利润计算器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <header class="page-header home-hero">
+      <div class="badge">跨境电商工具</div>
+      <h1>跨境电商利润计算器</h1>
+      <p>帮助跨境卖家快速计算成本、利润和目标售价。</p>
+      <div class="feature-grid" aria-label="主要功能">
+        <article class="feature-card">
+          <div class="feature-icon">01</div>
+          <h2>利润计算</h2>
+          <p>快速了解销售收入、总费用和实际净利润。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">02</div>
+          <h2>平台佣金分析</h2>
+          <p>参考不同平台佣金比例，估算平台费用影响。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">03</div>
+          <h2>目标售价计算</h2>
+          <p>根据目标利润率倒推出每件商品建议售价。</p>
+        </article>
+      </div>
+      <a class="button primary hero-button" href="#calculatorSection">开始计算</a>
+    </header>
+
+    <section id="calculatorSection" class="calculator-card" aria-label="利润计算器">
+      <form id="profitForm" novalidate>
+        <div class="section-title">
+          <h2>填写商品信息</h2>
+          <span>金额单位：人民币，售价为美元</span>
+        </div>
+
+        <div class="input-grid">
+          <label class="field">
+            <span>销售平台</span>
+            <select id="platform">
+              <option value="custom">自定义</option>
+              <option value="amazon">Amazon（参考 15%）</option>
+              <option value="ebay">eBay（参考 13.25%）</option>
+              <option value="tiktok">TikTok Shop（参考 6%）</option>
+              <option value="shopify">Shopify（参考 0%）</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>单件采购成本（人民币）</span>
+            <input id="purchaseCost" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required>
+            <small class="field-note">填写每件商品的采购成本，系统会自动乘以商品数量。</small>
+          </label>
+          <label class="field">
+            <span>商品售价（美元）</span>
+            <input id="salePrice" type="number" min="0" step="0.01" placeholder="例如：19.99" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>美元兑人民币汇率（1 美元 = ? 人民币）</span>
+            <input id="exchangeRate" type="number" min="0" step="0.0001" placeholder="例如：7.10" inputmode="decimal" required>
+            <small class="field-note">例如填写 7.10，表示 1 美元 = 7.10 人民币。</small>
+          </label>
+          <label class="field">
+            <span>国际物流总费用（人民币）</span>
+            <input id="shippingCost" type="number" min="0" step="0.01" placeholder="例如：12" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>平台佣金比例（%）</span>
+            <input id="commissionRate" type="number" min="0" max="100" step="0.01" placeholder="例如：15" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>广告总费用（人民币）</span>
+            <input id="advertisingCost" type="number" min="0" step="0.01" placeholder="例如：5" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>其他总费用（人民币）</span>
+            <input id="otherCost" type="number" min="0" step="0.01" placeholder="例如：2" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>商品数量</span>
+            <input id="quantity" type="number" min="1" step="1" placeholder="例如：10" inputmode="numeric" required>
+          </label>
+        </div>
+
+        <p class="rate-note">平台费率仅供估算，实际费率请以平台和商品类目为准。</p>
+
+        <div id="errorMessage" class="message error" role="alert" hidden></div>
+
+        <div class="actions">
+          <button type="submit" class="button primary">计算利润</button>
+          <button type="button" id="clearButton" class="button secondary">清空数据</button>
+        </div>
+      </form>
+
+      <section id="resultSection" class="results" aria-live="polite" hidden>
+        <div class="result-heading">
+          <div>
+            <h2>计算结果</h2>
+            <p id="profitStatus" class="status"></p>
+          </div>
+          <div class="profit-highlight">
+            <span>净利润</span>
+            <strong id="netProfit">¥0.00</strong>
+          </div>
+        </div>
+        <div class="result-grid">
+          <div class="result-item"><span>销售收入（人民币）</span><strong id="revenue">¥0.00</strong></div>
+          <div class="result-item"><span>商品总成本</span><strong id="productCost">¥0.00</strong></div>
+          <div class="result-item"><span>平台佣金</span><strong id="commission">¥0.00</strong></div>
+          <div class="result-item"><span>总费用</span><strong id="totalCost">¥0.00</strong></div>
+          <div class="result-item"><span>单件总成本（估算）</span><strong id="unitTotalCost">¥0.00</strong></div>
+          <div class="result-item"><span>单件利润</span><strong id="unitProfit">¥0.00</strong></div>
+          <div class="result-item"><span>利润率</span><strong id="profitRate">0.00%</strong></div>
+          <div class="result-item"><span>成本占销售额比例</span><strong id="costRate">0.00%</strong></div>
+        </div>
+        <p class="formula-note">总费用 = 商品总成本 + 国际物流 + 平台佣金 + 广告费用 + 其他费用</p>
+      </section>
+
+      <section class="target-section" aria-label="目标售价计算">
+        <div class="section-title">
+          <h2>目标售价计算</h2>
+          <span>根据当前费用倒推建议价格</span>
+        </div>
+        <form id="targetForm" class="target-form" novalidate>
+          <label class="field">
+            <span>目标利润率（%）</span>
+            <input id="targetProfitRate" type="number" min="0" max="100" step="0.01" placeholder="例如：20" inputmode="decimal" required>
+          </label>
+          <button type="submit" class="button primary">计算建议售价</button>
+        </form>
+        <div id="targetError" class="message error" role="alert" hidden></div>
+        <div id="targetResult" class="target-result" hidden>
+          <span>单件商品建议最低售价（美元）</span>
+          <strong id="suggestedPrice">$0.00</strong>
+          <p id="targetExplanation"></p>
+        </div>
+        <p class="formula-note">计算说明：建议售价会同时考虑采购成本、物流、平台佣金、广告、其他费用、数量和汇率。</p>
+      </section>
+
+      <section class="formula-guide" aria-label="计算公式说明">
+        <h2>计算公式说明</h2>
+        <p>销售收入 = 美元售价 × 汇率 × 商品数量</p>
+        <p>商品总成本 = 单件采购成本 × 商品数量</p>
+        <p>平台佣金 = 销售收入 × 平台佣金比例</p>
+        <p>净利润 = 销售收入 - 总费用</p>
+      </section>
+    </section>
+
+    <footer>
+      <div>Cross-border Profit Calculator</div>
+      <div>Version 2.0</div>
+      <div>仅供利润估算，实际费用请以平台账单为准。</div>
+      <div class="privacy-note">数据只在当前浏览器中计算，不会上传或保存。</div>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
