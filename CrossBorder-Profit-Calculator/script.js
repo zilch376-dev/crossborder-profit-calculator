@@ -6,6 +6,8 @@ const resultSection = document.getElementById('resultSection');
 const targetForm = document.getElementById('targetForm');
 const targetError = document.getElementById('targetError');
 const targetResult = document.getElementById('targetResult');
+const aiAnalysisButton = document.getElementById('aiAnalysisButton');
+const aiAnalysisSection = document.getElementById('aiAnalysisSection');
 
 // 这里的费率是方便估算的参考值，实际费率可能因国家、类目和账号而不同。
 const platformRates = {
@@ -113,6 +115,88 @@ form.addEventListener('submit', (event) => {
   status.className = `status ${isProfit ? 'profit' : 'loss'}`;
   document.getElementById('netProfit').classList.toggle('loss', !isProfit);
   resultSection.hidden = false;
+  aiAnalysisSection.hidden = true;
+});
+
+aiAnalysisButton.addEventListener('click', () => {
+  // 这是本地规则分析：不调用外部 API，根据当前输入重新计算并生成报告。
+  const error = validateInputs();
+  if (error) {
+    showError(error);
+    return;
+  }
+
+  const purchaseCost = getNumber('purchaseCost');
+  const salePrice = getNumber('salePrice');
+  const exchangeRate = getNumber('exchangeRate');
+  const shippingCost = getNumber('shippingCost');
+  const commissionRate = getNumber('commissionRate');
+  const advertisingCost = getNumber('advertisingCost');
+  const otherCost = getNumber('otherCost');
+  const quantity = getNumber('quantity');
+  const revenue = salePrice * exchangeRate * quantity;
+  const productCost = purchaseCost * quantity;
+  const commission = revenue * (commissionRate / 100);
+  const totalCost = productCost + shippingCost + commission + advertisingCost + otherCost;
+  const netProfit = revenue - totalCost;
+  const profitRate = (netProfit / revenue) * 100;
+  const costRate = (totalCost / revenue) * 100;
+
+  document.getElementById('aiProfitAnalysis').textContent = netProfit > 0
+    ? `当前处于盈利状态，预计净利润为 ${formatMoney(netProfit)}，每件利润约为 ${formatMoney(netProfit / quantity)}。`
+    : netProfit < 0
+      ? `当前处于亏损状态，预计亏损 ${formatMoney(Math.abs(netProfit))}，建议先检查售价和主要成本。`
+      : '当前处于盈亏平衡状态，暂时没有净利润。';
+
+  document.getElementById('aiMarginAnalysis').textContent = profitRate >= 30
+    ? `利润率为 ${profitRate.toFixed(2)}%，目前利润空间较好，但仍需留意平台费率和汇率波动。`
+    : profitRate >= 15
+      ? `利润率为 ${profitRate.toFixed(2)}%，处于中等水平，建议继续优化采购和广告投入。`
+      : profitRate > 0
+        ? `利润率为 ${profitRate.toFixed(2)}%，利润空间偏低，成本或汇率稍有变化就可能影响盈利。`
+        : `利润率为 ${profitRate.toFixed(2)}%，目前没有形成安全利润空间。`;
+
+  const costItems = [
+    { name: '商品采购成本', value: productCost },
+    { name: '平台佣金', value: commission },
+    { name: '国际物流', value: shippingCost },
+    { name: '广告费用', value: advertisingCost },
+    { name: '其他费用', value: otherCost }
+  ].sort((a, b) => b.value - a.value);
+  const topCosts = costItems.slice(0, 3).map(item => `${item.name} ${formatMoney(item.value)}（占销售额 ${(item.value / revenue * 100).toFixed(2)}%）`);
+  document.getElementById('aiCostAnalysis').textContent = `总费用为 ${formatMoney(totalCost)}，约占销售额 ${costRate.toFixed(2)}%。主要费用项目为：${topCosts.join('、')}。`;
+
+  const suggestions = [
+    netProfit <= 0
+      ? '当前处于亏损或持平状态，建议先提高售价或降低主要费用，再扩大销量。'
+      : '保留一定利润缓冲，应对汇率变化、退款和平台额外费用。',
+    productCost / revenue >= 0.4
+      ? '优先与供应商重新议价，或优化包装和采购批量，降低单件采购成本。'
+      : '继续比较供应商报价，定期复核单件采购成本，避免采购成本逐步上升。',
+    advertisingCost / revenue >= 0.1
+      ? '检查广告投产比，暂停低转化关键词，把预算集中到高转化商品和人群。'
+      : shippingCost / revenue >= 0.1
+        ? '比较不同物流渠道和运输方案，争取降低国际物流总费用。'
+        : '定期核对平台实际账单和物流报价，避免额外费用逐步侵蚀利润。'
+  ];
+  const suggestionList = document.getElementById('aiSuggestions');
+  suggestionList.replaceChildren(...suggestions.map(text => {
+    const item = document.createElement('li');
+    item.textContent = text;
+    return item;
+  }));
+
+  // 用 10% 至 20% 的目标利润率估算一个实用的建议售价区间。
+  const fixedCosts = purchaseCost * quantity + shippingCost + advertisingCost + otherCost;
+  const lowDenominator = 1 - commissionRate / 100 - 0.10;
+  const highDenominator = 1 - commissionRate / 100 - 0.20;
+  const lowPrice = lowDenominator > 0 ? fixedCosts / (quantity * exchangeRate * lowDenominator) : null;
+  const highPrice = highDenominator > 0 ? fixedCosts / (quantity * exchangeRate * highDenominator) : null;
+  document.getElementById('aiPriceRange').textContent = lowPrice !== null && highPrice !== null
+    ? `按 10% 至 20% 目标利润率估算，建议售价范围约为 $${lowPrice.toFixed(2)} - $${highPrice.toFixed(2)} / 件。实际售价还应结合市场竞争和平台账单调整。`
+    : '当前平台佣金比例过高，无法计算 10% 至 20% 目标利润率对应的售价范围，请先降低佣金比例或调整费用。';
+
+  aiAnalysisSection.hidden = false;
 });
 
 targetForm.addEventListener('submit', (event) => {
@@ -203,4 +287,5 @@ clearButton.addEventListener('click', () => {
   resultSection.hidden = true;
   targetError.hidden = true;
   targetResult.hidden = true;
+  aiAnalysisSection.hidden = true;
 });

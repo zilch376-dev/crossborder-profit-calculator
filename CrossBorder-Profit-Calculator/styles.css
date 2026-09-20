@@ -68,6 +68,20 @@ input::placeholder { color: #a0a8b8; }
 .result-item span { display: block; color: var(--muted); font-size: 13px; }
 .result-item strong { display: block; margin-top: 7px; font-size: 18px; }
 .formula-note { margin: 18px 0 0; color: var(--muted); font-size: 12px; }
+.result-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+.result-actions .button { flex: 0 0 auto; min-width: 150px; }
+.ai-analysis { margin-top: 18px; padding: 22px; border: 1px solid #dbeafe; border-radius: 14px; background: #f8fbff; }
+.ai-analysis-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.ai-analysis h3 { margin: 0; font-size: 19px; }
+.ai-analysis-header p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+.ai-label { padding: 5px 9px; border-radius: 999px; color: var(--primary); background: #dbeafe; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.analysis-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e5efff; }
+.analysis-block h4 { margin: 0 0 7px; color: #344054; font-size: 14px; }
+.analysis-block p { margin: 0; color: #475467; font-size: 13px; line-height: 1.7; }
+.analysis-block ol { margin: 0; padding-left: 20px; color: #475467; font-size: 13px; line-height: 1.8; }
+.analysis-block li + li { margin-top: 4px; }
+.price-advice { padding: 14px; border: 1px solid #bfdbfe; border-radius: 10px; background: #eff6ff; }
+.price-advice h4 { color: var(--primary-dark); }
 .target-section { margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--border); }
 .target-form { display: flex; align-items: flex-end; gap: 14px; margin-top: 22px; }
 .target-form .field { flex: 1; }
@@ -93,6 +107,11 @@ footer { padding-top: 22px; color: #667085; text-align: center; font-size: 12px;
   .input-grid, .result-grid { grid-template-columns: 1fr; gap: 14px; }
   .actions { flex-direction: column; }
   .profit-highlight { margin-top: 17px; text-align: left; }
+  .result-actions { justify-content: stretch; }
+  .result-actions .button { width: 100%; }
+  .ai-analysis { padding: 18px; }
+  .ai-analysis-header { display: block; }
+  .ai-label { display: inline-block; margin-top: 10px; }
   .target-form { display: block; }
   .target-form .button { width: 100%; margin-top: 16px; }
 }

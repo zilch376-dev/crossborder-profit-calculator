@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>跨境电商利润计算器v2.1</title>
+  <title>跨境电商利润计算器</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -118,6 +118,38 @@
           <div class="result-item"><span>成本占销售额比例</span><strong id="costRate">0.00%</strong></div>
         </div>
         <p class="formula-note">总费用 = 商品总成本 + 国际物流 + 平台佣金 + 广告费用 + 其他费用</p>
+        <div class="result-actions">
+          <button type="button" id="aiAnalysisButton" class="button secondary">AI利润分析</button>
+        </div>
+        <section id="aiAnalysisSection" class="ai-analysis" aria-live="polite" hidden>
+          <div class="ai-analysis-header">
+            <div>
+              <h3>AI利润分析报告</h3>
+              <p>根据当前计算结果，由本地规则生成，仅供经营决策参考。</p>
+            </div>
+            <span class="ai-label">本地分析</span>
+          </div>
+          <div class="analysis-block">
+            <h4>当前盈利情况</h4>
+            <p id="aiProfitAnalysis"></p>
+          </div>
+          <div class="analysis-block">
+            <h4>利润率评价</h4>
+            <p id="aiMarginAnalysis"></p>
+          </div>
+          <div class="analysis-block">
+            <h4>成本结构分析</h4>
+            <p id="aiCostAnalysis"></p>
+          </div>
+          <div class="analysis-block">
+            <h4>优化建议</h4>
+            <ol id="aiSuggestions"></ol>
+          </div>
+          <div class="analysis-block price-advice">
+            <h4>建议售价范围</h4>
+            <p id="aiPriceRange"></p>
+          </div>
+        </section>
       </section>
 
       <section class="target-section" aria-label="目标售价计算">
