@@ -11,7 +11,7 @@
     <header class="page-header home-hero">
       <div class="badge">跨境电商工具</div>
       <h1>跨境电商利润计算器</h1>
-      <p>帮助跨境卖家快速计算成本、利润和目标售价。</p>
+      <p>帮助跨境卖家快速计算成本、利润和商品报价。</p>
       <div class="feature-grid" aria-label="主要功能">
         <article class="feature-card">
           <div class="feature-icon">01</div>
@@ -25,8 +25,26 @@
         </article>
         <article class="feature-card">
           <div class="feature-icon">03</div>
-          <h2>目标售价计算</h2>
-          <p>根据目标利润率倒推出每件商品建议售价。</p>
+          <h2>AI利润分析</h2>
+          <p>分析盈利水平、成本结构和平台费用影响。</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">04</div>
+          <h2>商品报价助手</h2>
+          <p>根据成本、平台费用和目标利润率，自动计算建议销售价格。</p>
+          <a class="feature-action" href="#quoteAssistantSection">开始报价</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">05</div>
+          <h2>多方案对比</h2>
+          <p>比较不同售价、广告费用和平台佣金下的利润表现。</p>
+          <a class="feature-action" href="#comparisonSection">开始对比</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">06</div>
+          <h2>盈亏平衡分析</h2>
+          <p>计算不亏损的最低售价，并模拟主要成本上涨的影响。</p>
+          <a class="feature-action" href="#breakEvenSection">开始分析</a>
         </article>
       </div>
       <a class="button primary hero-button" href="#calculatorSection">开始计算</a>
@@ -46,9 +64,11 @@
               <option value="custom">自定义</option>
               <option value="amazon">Amazon（参考 15%）</option>
               <option value="ebay">eBay（参考 13.25%）</option>
-              <option value="tiktok">TikTok Shop（参考 6%）</option>
-              <option value="shopify">Shopify（参考 0%）</option>
+              <option value="shopify">Shopify（参考 3%）</option>
+              <option value="tiktok">TikTok Shop（参考 5%）</option>
+              <option value="aliexpress">AliExpress（参考 8%）</option>
             </select>
+            <small class="field-note">平台费用仅供估算，实际费用以官方规则为准。</small>
           </label>
           <label class="field">
             <span>单件采购成本（人民币）</span>
@@ -86,8 +106,6 @@
           </label>
         </div>
 
-        <p class="rate-note">平台费率仅供估算，实际费率请以平台和商品类目为准。</p>
-
         <div id="errorMessage" class="message error" role="alert" hidden></div>
 
         <div class="actions">
@@ -120,7 +138,9 @@
         <p class="formula-note">总费用 = 商品总成本 + 国际物流 + 平台佣金 + 广告费用 + 其他费用</p>
         <div class="result-actions">
           <button type="button" id="aiAnalysisButton" class="button secondary">AI利润分析</button>
+          <button type="button" id="exportPdfButton" class="button primary">导出PDF报告</button>
         </div>
+        <p class="export-note">点击导出后，请在浏览器打印窗口中选择“另存为 PDF”。</p>
         <section id="aiAnalysisSection" class="ai-analysis" aria-live="polite" hidden>
           <div class="ai-analysis-header">
             <div>
@@ -142,35 +162,14 @@
             <p id="aiCostAnalysis"></p>
           </div>
           <div class="analysis-block">
+            <h4>平台维度分析</h4>
+            <p id="aiPlatformAnalysis"></p>
+          </div>
+          <div class="analysis-block">
             <h4>优化建议</h4>
             <ol id="aiSuggestions"></ol>
           </div>
-          <div class="analysis-block price-advice">
-            <h4>建议售价范围</h4>
-            <p id="aiPriceRange"></p>
-          </div>
         </section>
-      </section>
-
-      <section class="target-section" aria-label="目标售价计算">
-        <div class="section-title">
-          <h2>目标售价计算</h2>
-          <span>根据当前费用倒推建议价格</span>
-        </div>
-        <form id="targetForm" class="target-form" novalidate>
-          <label class="field">
-            <span>目标利润率（%）</span>
-            <input id="targetProfitRate" type="number" min="0" max="100" step="0.01" placeholder="例如：20" inputmode="decimal" required>
-          </label>
-          <button type="submit" class="button primary">计算建议售价</button>
-        </form>
-        <div id="targetError" class="message error" role="alert" hidden></div>
-        <div id="targetResult" class="target-result" hidden>
-          <span>单件商品建议最低售价（美元）</span>
-          <strong id="suggestedPrice">$0.00</strong>
-          <p id="targetExplanation"></p>
-        </div>
-        <p class="formula-note">计算说明：建议售价会同时考虑采购成本、物流、平台佣金、广告、其他费用、数量和汇率。</p>
       </section>
 
       <section class="formula-guide" aria-label="计算公式说明">
@@ -182,13 +181,346 @@
       </section>
     </section>
 
+    <section id="breakEvenSection" class="calculator-card break-even-card" aria-label="盈亏平衡分析">
+      <form id="breakEvenForm" novalidate>
+        <div class="section-title">
+          <div>
+            <h2>盈亏平衡分析</h2>
+            <p class="section-description">根据主利润计算器中的当前成本，计算单件商品不亏损的最低售价。</p>
+          </div>
+          <span>读取当前利润计算器数据</span>
+        </div>
+        <div class="break-even-controls">
+          <label class="field">
+            <span>安全边际（%）</span>
+            <input id="safetyMarginRate" type="number" min="0" max="100" step="0.01" value="10" inputmode="decimal">
+            <small class="field-note">安全售价不是目标利润率售价，只是在盈亏平衡价上增加缓冲。</small>
+          </label>
+          <button type="submit" class="button primary">计算盈亏平衡</button>
+        </div>
+        <div id="breakEvenError" class="message error" role="alert" hidden></div>
+      </form>
+
+      <section id="breakEvenResultSection" class="results break-even-results" aria-live="polite" hidden>
+        <div class="result-heading">
+          <div>
+            <h2>盈亏平衡结果</h2>
+            <p class="status">按单件商品计算</p>
+          </div>
+          <div class="profit-highlight">
+            <span>盈亏平衡售价（美元）</span>
+            <strong id="breakEvenUsd">$0.00</strong>
+          </div>
+        </div>
+        <div class="result-grid break-even-grid">
+          <div class="result-item"><span>单件综合成本</span><strong id="breakEvenUnitCost">¥0.00</strong></div>
+          <div class="result-item"><span>盈亏平衡售价（人民币）</span><strong id="breakEvenRmb">¥0.00</strong></div>
+          <div class="result-item"><span>盈亏平衡售价（美元）</span><strong id="breakEvenUsdCard">$0.00</strong></div>
+          <div class="result-item"><span id="safeRmbLabel">10% 安全边际售价（人民币）</span><strong id="safePriceRmb">¥0.00</strong></div>
+          <div class="result-item"><span id="safeUsdLabel">10% 安全边际售价（美元）</span><strong id="safePriceUsd">$0.00</strong></div>
+        </div>
+        <div id="currentPriceGap" class="break-even-gap"></div>
+        <p class="loss-threshold-note">当售价低于该价格时，在当前成本假设下预计会产生亏损。</p>
+
+        <div class="simulation-panel">
+          <div class="simulation-heading">
+            <h3>成本变化模拟</h3>
+            <p>只模拟计算，不会修改上方原始输入。</p>
+          </div>
+          <div class="simulation-buttons">
+            <button type="button" class="button secondary simulation-button" data-simulation="purchase">采购成本 +10%</button>
+            <button type="button" class="button secondary simulation-button" data-simulation="shipping">物流费用 +10%</button>
+            <button type="button" class="button secondary simulation-button" data-simulation="advertising">广告费用 +10%</button>
+          </div>
+          <div id="simulationResult" class="simulation-result" aria-live="polite" hidden></div>
+        </div>
+        <p class="quote-warning">盈亏平衡结果基于当前输入成本进行估算，未包含未录入的税费、退货损失及其他潜在支出。</p>
+      </section>
+    </section>
+
+    <section id="quoteAssistantSection" class="calculator-card quote-assistant-card" aria-label="商品报价助手">
+      <form id="quoteForm" novalidate>
+        <div class="section-title">
+          <div>
+            <h2>商品报价助手</h2>
+            <p class="section-description">填写成本和目标利润率，快速生成单件商品建议报价。</p>
+          </div>
+          <span>成本单位：人民币</span>
+        </div>
+
+        <div class="input-grid">
+          <label class="field">
+            <span>单件采购成本（人民币）</span>
+            <input id="quotePurchaseCost" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>商品数量</span>
+            <input id="quoteQuantity" type="number" min="1" step="1" placeholder="例如：10" inputmode="numeric" required>
+          </label>
+          <label class="field">
+            <span>国际物流总费用（人民币）</span>
+            <input id="quoteShippingCost" type="number" min="0" step="0.01" placeholder="例如：100" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>广告总费用（人民币）</span>
+            <input id="quoteAdvertisingCost" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>其他总费用（人民币）</span>
+            <input id="quoteOtherCost" type="number" min="0" step="0.01" placeholder="例如：20" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>销售平台</span>
+            <select id="quotePlatform">
+              <option value="custom">自定义</option>
+              <option value="amazon">Amazon（参考 15%）</option>
+              <option value="ebay">eBay（参考 13.25%）</option>
+              <option value="shopify">Shopify（参考 3%）</option>
+              <option value="tiktok">TikTok Shop（参考 5%）</option>
+              <option value="aliexpress">AliExpress（参考 8%）</option>
+            </select>
+            <small class="field-note">平台费用仅供估算，实际费用以官方规则为准。</small>
+          </label>
+          <label class="field">
+            <span>平台佣金比例（%）</span>
+            <input id="quoteCommissionRate" type="number" min="0" max="100" step="0.01" placeholder="例如：15" inputmode="decimal" required>
+          </label>
+          <label class="field">
+            <span>美元兑人民币汇率（1 美元 = ? 人民币）</span>
+            <input id="quoteExchangeRate" type="number" min="0" step="0.0001" placeholder="例如：7.10" inputmode="decimal" required>
+            <small class="field-note">例如填写 7.10，表示 1 美元 = 7.10 人民币。</small>
+          </label>
+          <label class="field">
+            <span>目标利润率（%）</span>
+            <input id="quoteTargetProfitRate" type="number" min="0" max="100" step="0.01" placeholder="例如：25" inputmode="decimal" required>
+          </label>
+        </div>
+
+        <div id="quoteError" class="message error" role="alert" hidden></div>
+        <div class="actions">
+          <button type="submit" class="button primary">生成报价</button>
+          <button type="button" id="clearQuoteButton" class="button secondary">清空报价</button>
+        </div>
+      </form>
+
+      <section id="quoteResultSection" class="results quote-results" aria-live="polite" hidden>
+        <div class="result-heading">
+          <div>
+            <h2>报价结果</h2>
+            <p class="status profit">按单件商品计算</p>
+          </div>
+          <div class="profit-highlight">
+            <span>最低售价（美元）</span>
+            <strong id="quoteMinimumUsd">$0.00</strong>
+          </div>
+        </div>
+
+        <div class="result-grid quote-result-grid">
+          <div class="result-item"><span>单件基础成本</span><strong id="quoteBaseCost">¥0.00</strong></div>
+          <div class="result-item"><span>单件分摊物流费用</span><strong id="quoteShippingShare">¥0.00</strong></div>
+          <div class="result-item"><span>单件分摊广告费用</span><strong id="quoteAdvertisingShare">¥0.00</strong></div>
+          <div class="result-item"><span>单件分摊其他费用</span><strong id="quoteOtherShare">¥0.00</strong></div>
+          <div class="result-item"><span>不含平台佣金的单件成本</span><strong id="quoteFixedCost">¥0.00</strong></div>
+          <div class="result-item"><span>最低售价（人民币）</span><strong id="quoteMinimumRmb">¥0.00</strong></div>
+          <div class="result-item"><span>最低售价（美元）</span><strong id="quoteMinimumUsdCard">$0.00</strong></div>
+          <div class="result-item quote-range-item"><span>建议报价区间</span><strong id="quoteRange">$0.00 - $0.00</strong></div>
+          <div class="result-item"><span>预计单件利润</span><strong id="quoteExpectedProfit">¥0.00</strong></div>
+          <div class="result-item"><span>预计利润率</span><strong id="quoteExpectedMargin">0.00%</strong></div>
+        </div>
+        <p class="formula-note">预计单件利润和预计利润率按普通建议价（最低售价 × 1.05）计算。</p>
+        <p class="quote-warning">建议报价区间仅供参考，实际售价还需要结合市场竞争、退货率、税费和平台其他费用。</p>
+
+        <section class="ai-analysis quote-analysis" aria-label="报价分析">
+          <div class="ai-analysis-header">
+            <div>
+              <h3>报价分析</h3>
+              <p>根据当前报价结果，由本地规则生成，不调用外部 API。</p>
+            </div>
+            <span class="ai-label">本地分析</span>
+          </div>
+          <div class="analysis-block"><h4>当前主要成本来源</h4><p id="quoteCostAnalysis"></p></div>
+          <div class="analysis-block"><h4>平台佣金影响</h4><p id="quoteCommissionAnalysis"></p></div>
+          <div class="analysis-block"><h4>目标利润率评价</h4><p id="quoteMarginAnalysis"></p></div>
+          <div class="analysis-block"><h4>报价安全边际提醒</h4><p id="quoteSafetyAnalysis"></p></div>
+        </section>
+      </section>
+    </section>
+
+    <section id="comparisonSection" class="calculator-card comparison-card" aria-label="多方案对比">
+      <div class="section-title">
+        <div>
+          <h2>多方案对比</h2>
+          <p class="section-description">公共成本读取主利润计算器，每个方案可单独调整售价、广告和佣金。</p>
+        </div>
+        <span>对比结果仅提供客观指标</span>
+      </div>
+
+      <div class="comparison-toolbar">
+        <label class="field warning-field">
+          <span>利润率警戒值（%）</span>
+          <input id="comparisonWarningRate" type="number" min="0" max="100" step="0.01" value="10" inputmode="decimal">
+        </label>
+        <button type="button" id="fillComparisonButton" class="button secondary">从当前数据填充</button>
+      </div>
+      <p class="comparison-base-note">公共基础数据：单件采购成本、数量、物流总费用、其他总费用、汇率和销售平台。</p>
+
+      <form id="comparisonForm" novalidate>
+        <div class="scenario-grid">
+          <fieldset class="scenario-card">
+            <legend>方案 A</legend>
+            <label class="field"><span>商品售价（美元）</span><input id="scenarioAPrice" type="number" min="0" step="0.01" placeholder="例如：19.99" inputmode="decimal" required></label>
+            <label class="field"><span>广告总费用（人民币）</span><input id="scenarioAAdvertising" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required></label>
+            <label class="field"><span>平台佣金比例（%）</span><input id="scenarioACommission" type="number" min="0" max="100" step="0.01" placeholder="例如：15" inputmode="decimal" required></label>
+          </fieldset>
+          <fieldset class="scenario-card">
+            <legend>方案 B</legend>
+            <label class="field"><span>商品售价（美元）</span><input id="scenarioBPrice" type="number" min="0" step="0.01" placeholder="例如：21.99" inputmode="decimal" required></label>
+            <label class="field"><span>广告总费用（人民币）</span><input id="scenarioBAdvertising" type="number" min="0" step="0.01" placeholder="例如：70" inputmode="decimal" required></label>
+            <label class="field"><span>平台佣金比例（%）</span><input id="scenarioBCommission" type="number" min="0" max="100" step="0.01" placeholder="例如：15" inputmode="decimal" required></label>
+          </fieldset>
+          <fieldset class="scenario-card">
+            <legend>方案 C</legend>
+            <label class="field"><span>商品售价（美元）</span><input id="scenarioCPrice" type="number" min="0" step="0.01" placeholder="例如：17.99" inputmode="decimal" required></label>
+            <label class="field"><span>广告总费用（人民币）</span><input id="scenarioCAdvertising" type="number" min="0" step="0.01" placeholder="例如：30" inputmode="decimal" required></label>
+            <label class="field"><span>平台佣金比例（%）</span><input id="scenarioCCommission" type="number" min="0" max="100" step="0.01" placeholder="例如：13" inputmode="decimal" required></label>
+          </fieldset>
+        </div>
+
+        <div id="comparisonError" class="message error" role="alert" hidden></div>
+        <div class="actions comparison-actions">
+          <button type="submit" class="button primary">对比方案</button>
+        </div>
+      </form>
+
+      <section id="comparisonResultSection" class="results comparison-results" aria-live="polite" hidden>
+        <div class="result-heading">
+          <div>
+            <h2>方案对比结果</h2>
+            <p id="comparisonContext" class="comparison-context"></p>
+          </div>
+        </div>
+        <div class="comparison-table-wrap">
+          <table class="comparison-table">
+            <thead><tr><th>指标</th><th>方案 A</th><th>方案 B</th><th>方案 C</th></tr></thead>
+            <tbody>
+              <tr><th>状态</th><td id="compareAStatus"></td><td id="compareBStatus"></td><td id="compareCStatus"></td></tr>
+              <tr><th>销售收入</th><td id="compareARevenue"></td><td id="compareBRevenue"></td><td id="compareCRevenue"></td></tr>
+              <tr><th>商品总成本</th><td id="compareAProductCost"></td><td id="compareBProductCost"></td><td id="compareCProductCost"></td></tr>
+              <tr><th>平台佣金</th><td id="compareACommission"></td><td id="compareBCommission"></td><td id="compareCCommission"></td></tr>
+              <tr><th>总费用</th><td id="compareATotalCost"></td><td id="compareBTotalCost"></td><td id="compareCTotalCost"></td></tr>
+              <tr><th>净利润</th><td id="compareANetProfit"></td><td id="compareBNetProfit"></td><td id="compareCNetProfit"></td></tr>
+              <tr><th>单件利润</th><td id="compareAUnitProfit"></td><td id="compareBUnitProfit"></td><td id="compareCUnitProfit"></td></tr>
+              <tr><th>利润率</th><td id="compareAMargin"></td><td id="compareBMargin"></td><td id="compareCMargin"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="comparison-chart" aria-label="三个方案净利润对比图">
+          <div class="chart-heading">
+            <h3>净利润对比</h3>
+            <p>中线右侧为盈利，左侧为亏损。</p>
+          </div>
+          <div class="chart-row"><span>方案 A</span><div class="chart-track"><i></i><b id="compareABar" class="chart-bar"></b></div><strong id="compareABarValue"></strong></div>
+          <div class="chart-row"><span>方案 B</span><div class="chart-track"><i></i><b id="compareBBar" class="chart-bar"></b></div><strong id="compareBBarValue"></strong></div>
+          <div class="chart-row"><span>方案 C</span><div class="chart-track"><i></i><b id="compareCBar" class="chart-bar"></b></div><strong id="compareCBarValue"></strong></div>
+        </div>
+        <p class="formula-note">提示只依据盈利、亏损和利润率警戒值显示，不代表系统替你选择方案。</p>
+      </section>
+    </section>
+
     <footer>
       <div>Cross-border Profit Calculator</div>
-      <div>Version 2.0</div>
+      <div>Version 3.0</div>
       <div>仅供利润估算，实际费用请以平台账单为准。</div>
       <div class="privacy-note">数据只在当前浏览器中计算，不会上传或保存。</div>
     </footer>
   </main>
+
+  <!-- 该区域只会在导出 PDF 时显示，网页正常浏览时不会出现。 -->
+  <article id="pdfReport" class="pdf-report" aria-label="跨境电商利润分析报告">
+    <header class="pdf-header">
+      <div>
+        <p class="pdf-kicker">Cross-border Profit Calculator</p>
+        <h1>跨境电商利润分析报告</h1>
+        <p>生成日期：<span id="pdfDate"></span></p>
+      </div>
+      <div class="pdf-version">V3.0</div>
+    </header>
+
+    <section class="pdf-section">
+      <h2>商品信息</h2>
+      <table class="pdf-table">
+        <tbody>
+          <tr><th>销售平台</th><td id="pdfPlatform"></td><th>商品数量</th><td id="pdfQuantity"></td></tr>
+          <tr><th>商品售价</th><td id="pdfSalePrice"></td><th>美元兑人民币汇率</th><td id="pdfExchangeRate"></td></tr>
+          <tr><th>单件采购成本</th><td id="pdfUnitPurchaseCost"></td><th>商品总成本</th><td id="pdfProductCost"></td></tr>
+          <tr><th>国际物流总费用</th><td id="pdfShippingCost"></td><th>平台佣金</th><td id="pdfCommission"></td></tr>
+          <tr><th>广告总费用</th><td id="pdfAdvertisingCost"></td><th>其他总费用</th><td id="pdfOtherCost"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="pdf-section">
+      <h2>利润结果</h2>
+      <div class="pdf-summary-grid">
+        <div><span>销售收入</span><strong id="pdfRevenue"></strong></div>
+        <div><span>总成本</span><strong id="pdfTotalCost"></strong></div>
+        <div><span>净利润</span><strong id="pdfNetProfit"></strong></div>
+        <div><span>利润率</span><strong id="pdfProfitRate"></strong></div>
+      </div>
+    </section>
+
+    <section id="pdfBreakEvenSection" class="pdf-section" hidden>
+      <h2>盈亏平衡分析</h2>
+      <table class="pdf-table">
+        <tbody>
+          <tr><th>单件综合成本</th><td id="pdfBreakEvenUnitCost"></td><th>平台佣金比例</th><td id="pdfBreakEvenCommissionRate"></td></tr>
+          <tr><th>盈亏平衡售价（人民币）</th><td id="pdfBreakEvenRmb"></td><th>盈亏平衡售价（美元）</th><td id="pdfBreakEvenUsd"></td></tr>
+          <tr><th>安全售价</th><td id="pdfSafePrice"></td><th>当前售价差距</th><td id="pdfCurrentPriceGap"></td></tr>
+        </tbody>
+      </table>
+      <p class="pdf-section-note">盈亏平衡结果基于当前输入成本进行估算，未包含未录入的税费、退货损失及其他潜在支出。</p>
+    </section>
+
+    <section id="pdfAiSection" class="pdf-section" hidden>
+      <h2>AI利润分析</h2>
+      <div class="pdf-analysis-item"><h3>当前盈利情况</h3><p id="pdfAiProfit"></p></div>
+      <div class="pdf-analysis-item"><h3>利润率评价</h3><p id="pdfAiMargin"></p></div>
+      <div class="pdf-analysis-item"><h3>成本结构分析</h3><p id="pdfAiCost"></p></div>
+      <div class="pdf-analysis-item"><h3>平台维度分析</h3><p id="pdfAiPlatform"></p></div>
+      <div class="pdf-analysis-item"><h3>优化建议</h3><ol id="pdfAiSuggestions"></ol></div>
+    </section>
+
+    <section id="pdfQuoteSection" class="pdf-section" hidden>
+      <h2>商品报价助手结果</h2>
+      <table class="pdf-table">
+        <tbody>
+          <tr><th>销售平台</th><td id="pdfQuotePlatform"></td><th>目标利润率</th><td id="pdfQuoteTargetMargin"></td></tr>
+          <tr><th>单件固定成本</th><td id="pdfQuoteFixedCost"></td><th>平台佣金比例</th><td id="pdfQuoteCommissionRate"></td></tr>
+          <tr><th>最低售价（人民币）</th><td id="pdfQuoteMinimumRmb"></td><th>最低售价（美元）</th><td id="pdfQuoteMinimumUsd"></td></tr>
+          <tr><th>建议报价区间</th><td id="pdfQuoteRange"></td><th>预计单件利润</th><td id="pdfQuoteExpectedProfit"></td></tr>
+        </tbody>
+      </table>
+      <div class="pdf-analysis-item"><h3>报价分析</h3><p id="pdfQuoteAnalysis"></p></div>
+    </section>
+
+    <section id="pdfComparisonSection" class="pdf-section" hidden>
+      <h2>多方案对比结果</h2>
+      <p id="pdfComparisonContext" class="pdf-section-note"></p>
+      <table class="pdf-table pdf-comparison-table">
+        <thead><tr><th>指标</th><th>方案 A</th><th>方案 B</th><th>方案 C</th></tr></thead>
+        <tbody>
+          <tr><th>销售收入</th><td id="pdfCompareARevenue"></td><td id="pdfCompareBRevenue"></td><td id="pdfCompareCRevenue"></td></tr>
+          <tr><th>总费用</th><td id="pdfCompareATotalCost"></td><td id="pdfCompareBTotalCost"></td><td id="pdfCompareCTotalCost"></td></tr>
+          <tr><th>净利润</th><td id="pdfCompareANetProfit"></td><td id="pdfCompareBNetProfit"></td><td id="pdfCompareCNetProfit"></td></tr>
+          <tr><th>单件利润</th><td id="pdfCompareAUnitProfit"></td><td id="pdfCompareBUnitProfit"></td><td id="pdfCompareCUnitProfit"></td></tr>
+          <tr><th>利润率</th><td id="pdfCompareAMargin"></td><td id="pdfCompareBMargin"></td><td id="pdfCompareCMargin"></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="pdf-footer">本报告仅供利润估算，实际费用请以平台官方账单为准。</footer>
+  </article>
   <script src="script.js"></script>
 </body>
 </html>
