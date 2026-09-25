@@ -5,40 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>跨境电商利润计算器</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="responsive.css">
 </head>
 <body>
-  <main class="container">
-    <nav class="language-switcher" aria-label="语言选择">
-      <button type="button" id="langZh" data-language="zh" aria-pressed="true">中文</button>
-      <span aria-hidden="true">|</span>
-      <button type="button" id="langEn" data-language="en" aria-pressed="false">English</button>
-    </nav>
-    <header class="page-header home-hero">
-      <div class="badge">跨境电商工具</div>
-      <h1>跨境电商利润计算器</h1>
-      <p>帮助跨境卖家快速计算成本、利润和商品报价。</p>
-      <div class="feature-group">
-        <h2 class="feature-group-title">跨境电商工具</h2>
-        <div class="feature-grid" aria-label="跨境电商工具">
-          <article class="feature-card"><div class="feature-icon">01</div><h2>利润计算</h2><p>快速了解销售收入、总费用和实际净利润。</p><a class="feature-action" href="#calculatorSection">开始计算</a></article>
-          <article class="feature-card"><div class="feature-icon">02</div><h2>AI利润分析</h2><p>分析盈利水平、成本结构和平台费用影响。</p><a class="feature-action" href="#calculatorSection">查看分析</a></article>
-          <article class="feature-card"><div class="feature-icon">03</div><h2>商品报价助手</h2><p>根据成本、平台费用和目标利润率计算建议销售价格。</p><a class="feature-action" href="#quoteAssistantSection">开始报价</a></article>
-          <article class="feature-card"><div class="feature-icon">04</div><h2>盈亏平衡分析</h2><p>计算不亏损的最低售价，并模拟主要成本变化。</p><a class="feature-action" href="#breakEvenSection">开始分析</a></article>
-          <article class="feature-card"><div class="feature-icon">05</div><h2>多方案对比</h2><p>比较不同售价、广告费用和佣金下的利润表现。</p><a class="feature-action" href="#comparisonSection">开始对比</a></article>
-          <article class="feature-card"><div class="feature-icon">06</div><h2>产品/SKU管理</h2><p>保存常用产品数据，之后可以快速搜索和加载。</p><a class="feature-action" href="#productManagerSection">管理产品</a></article>
-          <article class="feature-card"><div class="feature-icon">07</div><h2>批量利润分析</h2><p>上传 CSV 或 XLSX，一次计算多个 SKU 的利润。</p><a class="feature-action" href="#batchAnalysisSection">批量分析</a></article>
+  <header class="app-topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#homeSection" data-route="home" aria-label="CrossBorder Profit 首页">
+        <span class="brand-mark" aria-hidden="true">CB</span>
+        <span>CrossBorder Profit</span>
+      </a>
+      <button type="button" id="menuToggle" class="menu-toggle" aria-label="打开导航菜单" aria-controls="primaryNavigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="primaryNavigation" class="primary-navigation" aria-label="主导航">
+        <a href="#homeSection" data-route="home">首页</a>
+        <a href="#calculatorSection" data-route="profit">利润工具</a>
+        <a href="#quoteAssistantSection" data-route="pricing">报价工具</a>
+        <a href="#productManagerSection" data-route="data">数据工具</a>
+        <div class="language-switcher" aria-label="语言选择">
+          <button type="button" id="langZh" data-language="zh" aria-pressed="true">中文</button>
+          <span aria-hidden="true">|</span>
+          <button type="button" id="langEn" data-language="en" aria-pressed="false">EN</button>
         </div>
-      </div>
-      <div class="feature-group trade-feature-group">
-        <h2 class="feature-group-title">外贸报价工具</h2>
-        <div class="feature-grid feature-grid-compact" aria-label="外贸报价工具">
-          <article class="feature-card"><div class="feature-icon">08</div><h2>外贸出口报价</h2><p>按 EXW、FOB、CFR、CIF 测算人民币和美元报价。</p><a class="feature-action" href="#tradeQuoteSection">开始报价</a></article>
-        </div>
-      </div>
-      <a class="button primary hero-button" href="#calculatorSection">开始计算</a>
-    </header>
+      </nav>
+    </div>
+  </header>
 
-    <section id="calculatorSection" class="calculator-card" aria-label="利润计算器">
+  <main class="container app-main">
+    <section id="homeSection" class="home-view" aria-labelledby="homeTitle">
+      <div class="home-hero">
+        <div class="hero-copy">
+          <div class="badge">跨境电商与外贸工具</div>
+          <h1 id="homeTitle">跨境电商利润与报价分析工具</h1>
+          <p>快速计算利润、成本、盈亏平衡与出口报价，帮助跨境卖家和外贸人员做出更清晰的经营决策。</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#calculatorSection" data-tool-link="calculatorSection">开始利润分析</a>
+            <a class="button secondary" href="#quoteAssistantSection" data-tool-link="quoteAssistantSection">生成商品报价</a>
+          </div>
+        </div>
+        <aside class="hero-summary" aria-label="工具概览">
+          <div><strong>8</strong><span>专业工具</span></div>
+          <div><strong>5</strong><span>平台模板</span></div>
+          <div><strong>100%</strong><span>浏览器本地处理</span></div>
+        </aside>
+      </div>
+
+      <div class="core-features" aria-label="核心功能">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></div>
+          <h2>利润分析</h2><p>计算收入、成本、净利润和利润率。</p>
+          <a class="feature-action" href="#calculatorSection" data-tool-link="calculatorSection">进入工具</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18M6 3v4m12-4v4M5 11h14v9H5zM8 15h4"/></svg></div>
+          <h2>商品报价</h2><p>根据成本和目标利润率反推合理售价。</p>
+          <a class="feature-action" href="#quoteAssistantSection" data-tool-link="quoteAssistantSection">进入工具</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 11h8M8 15h8M8 7h4"/></svg></div>
+          <h2>批量分析</h2><p>通过 Excel / CSV 批量分析多个 SKU。</p>
+          <a class="feature-action" href="#batchAnalysisSection" data-tool-link="batchAnalysisSection">进入工具</a>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18h18M5 18V8h14v10M8 8V5h8v3m-6 4h4"/></svg></div>
+          <h2>外贸报价</h2><p>支持 EXW、FOB、CFR、CIF 报价测算。</p>
+          <a class="feature-action" href="#tradeQuoteSection" data-tool-link="tradeQuoteSection">进入工具</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="toolContextBar" class="tool-context-bar" aria-label="工具导航" hidden>
+      <div><span class="tool-context-kicker">当前分类</span><h2 id="toolContextTitle">利润工具</h2></div>
+      <div class="tool-tabs">
+        <button type="button" data-tool-group="profit" data-tool-target="calculatorSection">利润计算</button>
+        <button type="button" data-tool-group="profit" data-tool-target="calculatorSection" data-focus-target="aiAnalysisButton">AI利润分析</button>
+        <button type="button" data-tool-group="profit" data-tool-target="breakEvenSection">盈亏平衡分析</button>
+        <button type="button" data-tool-group="profit" data-tool-target="comparisonSection">多方案对比</button>
+        <button type="button" data-tool-group="pricing" data-tool-target="quoteAssistantSection">商品报价助手</button>
+        <button type="button" data-tool-group="pricing" data-tool-target="tradeQuoteSection">外贸出口报价助手</button>
+        <button type="button" data-tool-group="data" data-tool-target="productManagerSection">SKU / 产品管理</button>
+        <button type="button" data-tool-group="data" data-tool-target="batchAnalysisSection">批量利润分析</button>
+      </div>
+    </section>
+
+    <section id="calculatorSection" class="calculator-card tool-panel split-tool" data-tool-group="profit" aria-label="利润计算器" hidden>
       <form id="profitForm" novalidate>
         <div class="section-title">
           <h2>填写商品信息</h2>
@@ -177,7 +228,7 @@
       </section>
     </section>
 
-    <section id="productManagerSection" class="calculator-card product-manager-card" aria-label="产品管理">
+    <section id="productManagerSection" class="calculator-card product-manager-card tool-panel" data-tool-group="data" aria-label="产品管理" hidden>
       <div class="section-title">
         <div>
           <h2>产品/SKU 管理</h2>
@@ -204,7 +255,7 @@
       <p id="emptyProductText" class="empty-state">还没有保存产品。请先填写主利润计算器，再点击“保存产品”。</p>
     </section>
 
-    <section id="breakEvenSection" class="calculator-card break-even-card" aria-label="盈亏平衡分析">
+    <section id="breakEvenSection" class="calculator-card break-even-card tool-panel split-tool" data-tool-group="profit" aria-label="盈亏平衡分析" hidden>
       <form id="breakEvenForm" novalidate>
         <div class="section-title">
           <div>
@@ -261,7 +312,7 @@
       </section>
     </section>
 
-    <section id="quoteAssistantSection" class="calculator-card quote-assistant-card" aria-label="商品报价助手">
+    <section id="quoteAssistantSection" class="calculator-card quote-assistant-card tool-panel split-tool" data-tool-group="pricing" aria-label="商品报价助手" hidden>
       <form id="quoteForm" novalidate>
         <div class="section-title">
           <div>
@@ -369,7 +420,7 @@
       </section>
     </section>
 
-    <section id="comparisonSection" class="calculator-card comparison-card" aria-label="多方案对比">
+    <section id="comparisonSection" class="calculator-card comparison-card tool-panel" data-tool-group="profit" aria-label="多方案对比" hidden>
       <div class="section-title">
         <div>
           <h2>多方案对比</h2>
@@ -451,7 +502,7 @@
       </section>
     </section>
 
-    <section id="batchAnalysisSection" class="calculator-card batch-analysis-card" aria-label="批量利润分析">
+    <section id="batchAnalysisSection" class="calculator-card batch-analysis-card tool-panel" data-tool-group="data" aria-label="批量利润分析" hidden>
       <div class="section-title">
         <div>
           <h2>Excel / CSV 批量利润分析</h2>
@@ -459,7 +510,12 @@
         </div>
         <span>支持 .csv 和 .xlsx</span>
       </div>
-      <div class="batch-upload-panel">
+      <div id="batchDropZone" class="batch-upload-panel">
+        <button type="button" id="batchDropTrigger" class="drop-zone-copy" aria-label="拖入 Excel 或 CSV 文件，或选择文件">
+          <span class="drop-zone-icon">⇧</span>
+          <strong>拖入 Excel / CSV 文件</strong>
+          <small>或点击下方选择文件，支持 .csv 和 .xlsx</small>
+        </button>
         <label class="field file-field">
           <span>选择批量分析文件</span>
           <input id="batchFile" type="file" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
@@ -498,7 +554,7 @@
       </section>
     </section>
 
-    <section id="tradeQuoteSection" class="calculator-card trade-quote-card" aria-label="外贸出口报价助手">
+    <section id="tradeQuoteSection" class="calculator-card trade-quote-card tool-panel split-tool" data-tool-group="pricing" aria-label="外贸出口报价助手" hidden>
       <form id="tradeQuoteForm" novalidate>
         <div class="section-title">
           <div>
@@ -508,7 +564,16 @@
           <span>金额单位：人民币</span>
         </div>
         <div class="input-grid">
-          <label class="field"><span>贸易术语</span><select id="tradeTerm"><option value="EXW">EXW</option><option value="FOB">FOB</option><option value="CFR">CFR</option><option value="CIF">CIF</option></select></label>
+          <div class="field trade-term-field">
+            <span id="tradeTermLabel">贸易术语</span>
+            <div class="trade-term-tabs" role="tablist" aria-labelledby="tradeTermLabel">
+              <button type="button" role="tab" data-trade-term="EXW" aria-selected="true">EXW</button>
+              <button type="button" role="tab" data-trade-term="FOB" aria-selected="false">FOB</button>
+              <button type="button" role="tab" data-trade-term="CFR" aria-selected="false">CFR</button>
+              <button type="button" role="tab" data-trade-term="CIF" aria-selected="false">CIF</button>
+            </div>
+            <select id="tradeTerm" class="sr-only" tabindex="-1" aria-hidden="true"><option value="EXW">EXW</option><option value="FOB">FOB</option><option value="CFR">CFR</option><option value="CIF">CIF</option></select>
+          </div>
           <label class="field"><span>报价单位</span><select id="tradeQuoteUnit"><option value="unit">每件</option><option value="batch">整批</option></select></label>
           <label class="field"><span>单件产品采购成本（人民币）</span><input id="tradePurchaseCost" type="number" min="0" step="0.01" placeholder="例如：100" inputmode="decimal" required></label>
           <label class="field"><span>商品数量</span><input id="tradeQuantity" type="number" min="1" step="1" placeholder="例如：10" inputmode="numeric" required></label>
@@ -664,5 +729,6 @@
   <script src="i18n.js"></script>
   <script src="xlsx.full.min.js"></script>
   <script src="script.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>
