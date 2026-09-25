@@ -22,12 +22,19 @@ body {
 }
 
 .container { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 28px; }
+.language-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 4px 12px; color: var(--muted); font-size: 13px; }
+.language-switcher button { padding: 5px 7px; border: 0; border-radius: 7px; cursor: pointer; color: var(--muted); background: transparent; font: inherit; font-weight: 700; }
+.language-switcher button:hover, .language-switcher button.active { color: var(--primary-dark); background: #dbeafe; }
 .page-header { text-align: center; margin-bottom: 28px; }
 .home-hero { padding: clamp(44px, 8vw, 82px) clamp(18px, 5vw, 52px) clamp(38px, 6vw, 58px); border: 1px solid rgba(255,255,255,.8); border-radius: 24px; background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f8fbff 48%, #edf4ff 100%); box-shadow: 0 18px 50px rgba(30, 64, 175, .1); }
 .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; color: var(--primary); background: #dbeafe; font-size: 13px; font-weight: 700; }
 h1 { margin: 14px 0 8px; font-size: clamp(28px, 5vw, 42px); letter-spacing: 1px; }
 .page-header p { margin: 0; color: var(--muted); font-size: 16px; }
-.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 34px 0 28px; text-align: left; }
+.feature-group { margin-top: 32px; text-align: left; }
+.feature-group-title { margin-bottom: 13px; color: #344054; font-size: 14px; letter-spacing: .5px; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 0; text-align: left; }
+.feature-grid-compact { grid-template-columns: minmax(220px, 300px); }
+.trade-feature-group { margin-top: 22px; }
 .feature-card { padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,.82); }
 .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; border-radius: 8px; color: var(--primary); background: #dbeafe; font-size: 11px; font-weight: 800; letter-spacing: .5px; }
 .feature-card h2 { margin: 14px 0 7px; font-size: 17px; }
@@ -36,8 +43,10 @@ h1 { margin: 14px 0 8px; font-size: clamp(28px, 5vw, 42px); letter-spacing: 1px;
 .feature-action:hover { color: var(--primary-dark); text-decoration: underline; }
 .hero-button { display: inline-flex; width: auto; min-width: 152px; flex: 0 0 auto; align-items: center; justify-content: center; text-decoration: none; }
 .calculator-card { padding: clamp(20px, 4vw, 36px); border: 1px solid rgba(255,255,255,.8); border-radius: 22px; background: rgba(255,255,255,.94); box-shadow: 0 18px 50px rgba(30, 64, 175, .1); }
-#calculatorSection, #breakEvenSection, #quoteAssistantSection, #comparisonSection { scroll-margin-top: 20px; }
-.break-even-card, .quote-assistant-card, .comparison-card { margin-top: 28px; }
+#calculatorSection, #breakEvenSection, #quoteAssistantSection, #comparisonSection,
+#productManagerSection, #batchAnalysisSection, #tradeQuoteSection { scroll-margin-top: 20px; }
+.break-even-card, .quote-assistant-card, .comparison-card, .product-manager-card,
+.batch-analysis-card, .trade-quote-card { margin-top: 28px; }
 .section-title, .result-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 h2 { margin: 0; font-size: 21px; }
 .section-title span { color: var(--muted); font-size: 13px; }
@@ -58,6 +67,8 @@ input::placeholder { color: #a0a8b8; }
 .primary:hover { background: var(--primary-dark); }
 .secondary { color: #344054; background: #eef2f7; }
 .secondary:hover { background: #e2e8f0; }
+.danger-button { color: #b42318; background: #fef3f2; }
+.danger-button:hover { background: #fee4e2; }
 .results { margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--border); }
 .result-heading { align-items: center; }
 .status { margin: 7px 0 0; font-weight: 700; }
@@ -137,6 +148,36 @@ input::placeholder { color: #a0a8b8; }
 .chart-bar.profit { left: 50%; background: var(--success); }
 .chart-bar.loss { right: 50%; background: var(--danger); }
 .chart-bar.neutral { left: 50%; background: #98a2b3; }
+.manager-toolbar { display: grid; grid-template-columns: 170px minmax(240px, 1fr) 170px; align-items: end; gap: 14px; margin-top: 24px; }
+.manager-toolbar .button { width: 100%; }
+.message.success { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; }
+.data-table-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+.data-table { width: 100%; min-width: 820px; border-collapse: collapse; font-size: 12px; }
+.data-table th, .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.data-table thead th { color: #344054; background: #eef4ff; font-weight: 800; }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table tbody tr:hover { background: #f8fbff; }
+.table-actions { display: flex; gap: 6px; }
+.table-button { padding: 6px 9px; border: 0; border-radius: 7px; cursor: pointer; color: var(--primary-dark); background: #eff6ff; font: inherit; font-weight: 700; }
+.table-button.delete { color: #b42318; background: #fef3f2; }
+.empty-state { margin: 18px 0 0; color: var(--muted); text-align: center; font-size: 13px; }
+.batch-upload-panel { display: grid; grid-template-columns: minmax(240px, 1fr) auto; align-items: end; gap: 16px; margin-top: 24px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: #fbfcfe; }
+.batch-template-actions { display: flex; gap: 10px; }
+.batch-template-actions .button { flex: 0 0 auto; }
+.batch-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.batch-summary-grid > div { padding: 16px; border: 1px solid var(--border); border-radius: 11px; background: #fbfcfe; }
+.batch-summary-grid span { display: block; color: var(--muted); font-size: 12px; }
+.batch-summary-grid strong { display: block; margin-top: 6px; font-size: 18px; }
+.batch-controls { display: grid; grid-template-columns: 150px 210px 1fr 1fr; align-items: end; gap: 12px; margin-top: 20px; }
+.batch-controls .button { width: 100%; }
+.batch-table td.metric-positive, .batch-table td.metric-negative { background: transparent; }
+.trade-scope-note { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; color: #1e3a8a; background: #eff6ff; font-size: 12px; line-height: 1.65; }
+.cost-breakdown { margin-top: 22px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: #fbfcfe; }
+.cost-breakdown h3 { margin: 0 0 14px; font-size: 16px; }
+.cost-breakdown-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.cost-breakdown-grid > div { padding: 12px; border-radius: 9px; background: #fff; }
+.cost-breakdown-grid span { display: block; color: var(--muted); font-size: 11px; }
+.cost-breakdown-grid strong { display: block; margin-top: 5px; font-size: 14px; }
 .formula-guide { margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--border); }
 .formula-guide h2 { margin-bottom: 14px; }
 .formula-guide p { margin: 8px 0; color: var(--muted); font-size: 13px; }
@@ -145,9 +186,12 @@ footer { padding-top: 22px; color: #667085; text-align: center; font-size: 12px;
 .pdf-report { display: none; }
 
 @media (max-width: 640px) {
-  .container { width: min(100% - 20px, 560px); padding-top: 26px; }
+  .container { width: min(calc(100% - 20px), 560px); padding-top: 26px; }
+  .language-switcher { margin-right: 2px; }
   .home-hero { padding: 38px 16px 32px; border-radius: 16px; }
   .feature-grid { grid-template-columns: 1fr; gap: 10px; margin: 26px 0 24px; }
+  .feature-group { margin-top: 26px; }
+  .feature-grid { margin: 0; }
   .feature-card { padding: 16px; }
   .calculator-card { border-radius: 16px; padding: 20px 16px; }
   .section-title, .result-heading { display: block; }
@@ -167,6 +211,9 @@ footer { padding-top: 22px; color: #667085; text-align: center; font-size: 12px;
   .chart-heading p { margin-top: 5px; }
   .chart-row { grid-template-columns: 52px 1fr; gap: 8px; }
   .chart-row > strong { grid-column: 2; text-align: left; }
+  .manager-toolbar, .batch-upload-panel, .batch-controls { display: grid; grid-template-columns: 1fr; }
+  .batch-template-actions { flex-direction: column; }
+  .batch-summary-grid, .cost-breakdown-grid { grid-template-columns: 1fr 1fr; }
   .actions { flex-direction: column; }
   .profit-highlight { margin-top: 17px; text-align: left; }
   .result-actions { flex-direction: column; justify-content: stretch; }
@@ -183,7 +230,8 @@ footer { padding-top: 22px; color: #667085; text-align: center; font-size: 12px;
   html, body { background: #fff !important; }
   body { color: #172033; font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif; }
   .container { display: none !important; }
-  .pdf-report { display: block !important; width: 100%; margin: 0; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .pdf-report { display: none !important; width: 100%; margin: 0; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  body.print-main #pdfReport, body.print-batch #batchPdfReport, body.print-trade #tradePdfReport { display: block !important; }
   .pdf-report [hidden] { display: none !important; }
   .pdf-header { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 18px; border-bottom: 2px solid #2563eb; }
   .pdf-header h1 { margin: 5px 0 8px; font-size: 25px; letter-spacing: 0; }
@@ -208,5 +256,7 @@ footer { padding-top: 22px; color: #667085; text-align: center; font-size: 12px;
   .pdf-section-note { margin: 0 0 9px; color: #667085; font-size: 10px; }
   .pdf-comparison-table th, .pdf-comparison-table td { width: 24%; }
   .pdf-comparison-table th:first-child { width: 28%; }
+  .pdf-batch-table { table-layout: auto; }
+  .pdf-batch-table th, .pdf-batch-table td { width: auto; padding: 7px 8px; font-size: 9.5px; }
   .pdf-footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #dbe2ea; color: #98a2b3; text-align: center; font-size: 9px; }
 }

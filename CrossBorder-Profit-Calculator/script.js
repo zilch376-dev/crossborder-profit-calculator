@@ -21,6 +21,19 @@ const comparisonError = document.getElementById('comparisonError');
 const comparisonResultSection = document.getElementById('comparisonResultSection');
 const fillComparisonButton = document.getElementById('fillComparisonButton');
 let latestComparisonResult = null;
+const productStorageKey = 'crossBorderProfitProductsV4';
+const saveProductButton = document.getElementById('saveProductButton');
+const productListBody = document.getElementById('productListBody');
+const productMessage = document.getElementById('productMessage');
+let editingProductSku = null;
+const batchFileInput = document.getElementById('batchFile');
+const batchError = document.getElementById('batchError');
+const batchResultSection = document.getElementById('batchResultSection');
+let latestBatchResult = null;
+const tradeQuoteForm = document.getElementById('tradeQuoteForm');
+const tradeQuoteError = document.getElementById('tradeQuoteError');
+const tradeQuoteResultSection = document.getElementById('tradeQuoteResultSection');
+let latestTradeQuoteResult = null;
 
 // 这里的费率是方便估算的参考值，实际费率可能因国家、类目和账号而不同。
 const platformRates = {
@@ -113,15 +126,68 @@ comparisonBaseIds.forEach(id => {
 
 // 金额统一保留两位小数，并加上人民币符号，方便阅读。
 function formatMoney(value) {
-  return `¥${value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatLocalizedCny(value);
 }
 
 function formatUsd(value) {
-  return `$${value.toFixed(2)}`;
+  return formatLocalizedUsd(value);
 }
 
 function getNumber(id) {
   return Number(document.getElementById(id).value);
+}
+
+// 主计算器、多方案对比、SKU 保存和批量分析统一调用这一个利润公式。
+function calculateProfitMetrics(data) {
+  const revenue = data.salePrice * data.exchangeRate * data.quantity;
+  const productCost = data.purchaseCost * data.quantity;
+  const commission = revenue * (data.commissionRate / 100);
+  const totalCost = productCost + data.shippingCost + commission + data.advertisingCost + data.otherCost;
+  const netProfit = revenue - totalCost;
+  return {
+    revenue,
+    productCost,
+    commission,
+    totalCost,
+    netProfit,
+    unitTotalCost: totalCost / data.quantity,
+    unitProfit: netProfit / data.quantity,
+    profitRate: netProfit / revenue * 100,
+    costRate: totalCost / revenue * 100
+  };
+}
+
+function getMainCalculatorData() {
+  return {
+    productName: document.getElementById('productName').value.trim(),
+    sku: document.getElementById('sku').value.trim(),
+    platform: document.getElementById('platform').value,
+    purchaseCost: getNumber('purchaseCost'),
+    salePrice: getNumber('salePrice'),
+    exchangeRate: getNumber('exchangeRate'),
+    shippingCost: getNumber('shippingCost'),
+    commissionRate: getNumber('commissionRate'),
+    advertisingCost: getNumber('advertisingCost'),
+    otherCost: getNumber('otherCost'),
+    quantity: getNumber('quantity')
+  };
+}
+
+function getPlatformName(platformValue) {
+  const names = { custom: t('platform.custom'), amazon: 'Amazon', ebay: 'eBay', shopify: 'Shopify', tiktok: 'TikTok Shop', aliexpress: 'AliExpress' };
+  return names[platformValue] || platformValue || t('platform.custom');
+}
+
+function setPrintMode(mode, title) {
+  const originalTitle = document.title;
+  document.body.classList.remove('print-main', 'print-batch', 'print-trade');
+  document.body.classList.add(`print-${mode}`);
+  document.title = title;
+  window.addEventListener('afterprint', () => {
+    document.title = originalTitle;
+    document.body.classList.remove('print-main', 'print-batch', 'print-trade');
+  }, { once: true });
+  requestAnimationFrame(() => window.print());
 }
 
 // 检查是否填写了所有必要数据，并检查数字范围是否合理。
@@ -131,21 +197,21 @@ function validateInputs() {
   const exchangeRateText = document.getElementById('exchangeRate').value.trim();
 
   if (exchangeRateText === '' || !Number.isFinite(values.exchangeRate) || values.exchangeRate <= 0) {
-    return '请输入正确的美元兑人民币汇率，例如 7.10。';
+    return t('error.exchangeRate');
   }
 
   if (hasMissingValue || Object.values(values).some(value => !Number.isFinite(value))) {
-    return '请填写所有输入项，并确保输入的是有效数字。';
+    return t('error.allInputs');
   }
   if (values.purchaseCost < 0 || values.salePrice <= 0 ||
       values.shippingCost < 0 || values.advertisingCost < 0 || values.otherCost < 0) {
-    return '采购成本、物流、广告和其他费用不能为负数；售价必须大于 0。';
+    return t('error.mainAmounts');
   }
   if (values.commissionRate < 0 || values.commissionRate > 100) {
-    return '平台佣金比例应填写 0 到 100 之间的数字。';
+    return t('error.commissionRange');
   }
   if (!Number.isInteger(values.quantity) || values.quantity < 1) {
-    return '商品数量必须是大于或等于 1 的整数。';
+    return t('error.quantityInteger');
   }
   return null;
 }
@@ -164,30 +230,30 @@ function validateBreakEvenInputs() {
   const values = Object.fromEntries(requiredIds.map(id => [id, getNumber(id)]));
   const hasMissingValue = requiredIds.some(id => document.getElementById(id).value.trim() === '');
   if (hasMissingValue || Object.values(values).some(value => !Number.isFinite(value))) {
-    return '请先填写完整的成本、数量、佣金、汇率和安全边际，并确保输入的是有效数字。';
+    return t('error.breakEvenRequired');
   }
   if (!Number.isInteger(values.quantity) || values.quantity <= 0) {
-    return '商品数量必须是大于 0 的整数。';
+    return t('error.quantityPositive');
   }
   if (values.exchangeRate <= 0) {
-    return '美元兑人民币汇率必须大于 0。';
+    return t('error.exchangePositive');
   }
   if (values.commissionRate < 0 || values.commissionRate >= 100) {
-    return '平台佣金比例必须大于或等于 0，并且小于 100%。';
+    return t('error.commissionBelow100');
   }
   if (values.purchaseCost < 0 || values.shippingCost < 0 ||
       values.advertisingCost < 0 || values.otherCost < 0) {
-    return '采购、物流、广告和其他费用不能为负数。';
+    return t('error.costsNonNegative');
   }
   if (values.safetyMarginRate < 0 || values.safetyMarginRate > 100) {
-    return '安全边际应填写 0 到 100 之间的数字。';
+    return t('error.safetyRange');
   }
 
   const salePriceInput = document.getElementById('salePrice');
   if (salePriceInput.value.trim() !== '') {
     const salePrice = Number(salePriceInput.value);
     if (!Number.isFinite(salePrice) || salePrice <= 0) {
-      return '当前商品售价必须是大于 0 的有效数字。';
+      return t('error.currentPrice');
     }
   }
   return null;
@@ -202,22 +268,22 @@ function showBreakEvenError(message) {
 
 function getBreakEvenGapText(currentSalePrice, breakEvenUsd) {
   if (currentSalePrice === null) {
-    return { text: '尚未输入当前商品售价，暂不计算与盈亏平衡点的距离。', status: '' };
+    return { text: t('breakEven.noCurrentPrice'), status: '' };
   }
   const difference = currentSalePrice - breakEvenUsd;
   if (Math.abs(difference) < 0.000001) {
-    return { text: '当前售价与盈亏平衡点基本相同：$0.00（0.00%）。', status: '' };
+    return { text: t('breakEven.samePrice', { amount: formatUsd(0) }), status: '' };
   }
   if (breakEvenUsd === 0) {
     return {
-      text: `当前售价高于盈亏平衡点：${formatUsd(Math.abs(difference))}。由于盈亏平衡价为 0，无法计算百分比差距。`,
+      text: t('breakEven.aboveNoPercent', { amount: formatUsd(Math.abs(difference)) }),
       status: 'positive'
     };
   }
   const percentageGap = Math.abs(difference) / breakEvenUsd * 100;
   return difference > 0
-    ? { text: `当前售价高于盈亏平衡点：${formatUsd(difference)}（高出 ${percentageGap.toFixed(2)}%）。`, status: 'positive' }
-    : { text: `当前售价低于盈亏平衡点：${formatUsd(Math.abs(difference))}（低于 ${percentageGap.toFixed(2)}%）。`, status: 'negative' };
+    ? { text: t('breakEven.above', { amount: formatUsd(difference), percent: percentageGap.toFixed(2) }), status: 'positive' }
+    : { text: t('breakEven.below', { amount: formatUsd(Math.abs(difference)), percent: percentageGap.toFixed(2) }), status: 'negative' };
 }
 
 breakEvenForm.addEventListener('submit', (event) => {
@@ -248,13 +314,13 @@ breakEvenForm.addEventListener('submit', (event) => {
   const safetyLabel = Number.isInteger(safetyMarginRate) ? safetyMarginRate.toFixed(0) : safetyMarginRate.toFixed(2);
 
   document.getElementById('breakEvenUnitCost').textContent = formatMoney(unitCost);
-  document.getElementById('breakEvenRmb').textContent = `${formatMoney(breakEvenRmb)} / 件`;
+  document.getElementById('breakEvenRmb').textContent = t('pdf.unitAmount', { amount: formatMoney(breakEvenRmb) });
   document.getElementById('breakEvenUsd').textContent = formatUsd(breakEvenUsdValue);
-  document.getElementById('breakEvenUsdCard').textContent = `${formatUsd(breakEvenUsdValue)} / 件`;
-  document.getElementById('safeRmbLabel').textContent = `${safetyLabel}% 安全边际售价（人民币）`;
-  document.getElementById('safeUsdLabel').textContent = `${safetyLabel}% 安全边际售价（美元）`;
-  document.getElementById('safePriceRmb').textContent = `${formatMoney(safePriceRmbValue)} / 件`;
-  document.getElementById('safePriceUsd').textContent = `${formatUsd(safePriceUsdValue)} / 件`;
+  document.getElementById('breakEvenUsdCard').textContent = t('pdf.unitAmount', { amount: formatUsd(breakEvenUsdValue) });
+  document.getElementById('safeRmbLabel').textContent = t('breakEven.safeCny', { percent: safetyLabel });
+  document.getElementById('safeUsdLabel').textContent = t('breakEven.safeUsd', { percent: safetyLabel });
+  document.getElementById('safePriceRmb').textContent = t('pdf.unitAmount', { amount: formatMoney(safePriceRmbValue) });
+  document.getElementById('safePriceUsd').textContent = t('pdf.unitAmount', { amount: formatUsd(safePriceUsdValue) });
   const gapElement = document.getElementById('currentPriceGap');
   gapElement.textContent = gap.text;
   gapElement.className = `break-even-gap${gap.status ? ` ${gap.status}` : ''}`;
@@ -293,20 +359,20 @@ document.querySelectorAll('.simulation-button').forEach(button => {
     let label = '';
     if (simulationType === 'purchase') {
       purchaseCost *= 1.10;
-      label = '采购成本上涨 10%';
+      label = t('breakEven.purchaseRise');
     } else if (simulationType === 'shipping') {
       shippingCost *= 1.10;
-      label = '物流费用上涨 10%';
+      label = t('breakEven.shippingRise');
     } else {
       advertisingCost *= 1.10;
-      label = '广告费用上涨 10%';
+      label = t('breakEven.advertisingRise');
     }
 
     const simulatedUnitCost = purchaseCost + shippingCost / latestBreakEvenResult.quantity +
       advertisingCost / latestBreakEvenResult.quantity + latestBreakEvenResult.otherCost / latestBreakEvenResult.quantity;
     const simulatedRmb = simulatedUnitCost / (1 - latestBreakEvenResult.commissionDecimal);
     const simulatedUsd = simulatedRmb / latestBreakEvenResult.exchangeRate;
-    simulationResult.textContent = `${label}后，新的盈亏平衡售价约为 ${formatMoney(simulatedRmb)} / 件，${formatUsd(simulatedUsd)} / 件。原始输入未被修改。`;
+    simulationResult.textContent = t('breakEven.simulationResult', { label, cny: formatMoney(simulatedRmb), usd: formatUsd(simulatedUsd) });
     simulationResult.hidden = false;
   });
 });
@@ -316,26 +382,26 @@ function validateQuoteInputs() {
   const hasMissingValue = quoteInputIds.some(id => document.getElementById(id).value.trim() === '');
 
   if (hasMissingValue || Object.values(values).some(value => !Number.isFinite(value))) {
-    return '请填写所有报价信息，并确保输入的是有效数字。';
+    return t('error.quoteRequired');
   }
   if (values.quotePurchaseCost < 0 || values.quoteShippingCost < 0 ||
       values.quoteAdvertisingCost < 0 || values.quoteOtherCost < 0) {
-    return '采购、物流、广告和其他费用不能为负数。';
+    return t('error.costsNonNegative');
   }
   if (!Number.isInteger(values.quoteQuantity) || values.quoteQuantity < 1) {
-    return '商品数量必须是大于或等于 1 的整数。';
+    return t('error.quantityInteger');
   }
   if (values.quoteExchangeRate <= 0) {
-    return '请输入正确的美元兑人民币汇率，例如 7.10。';
+    return t('error.exchangeRate');
   }
   if (values.quoteCommissionRate < 0 || values.quoteCommissionRate > 100) {
-    return '平台佣金比例应填写 0 到 100 之间的数字。';
+    return t('error.commissionRange');
   }
   if (values.quoteTargetProfitRate < 0 || values.quoteTargetProfitRate >= 100) {
-    return '目标利润率应填写 0 到 100 之间的数字（不含 100）。';
+    return t('error.targetMarginRange');
   }
   if (values.quoteCommissionRate + values.quoteTargetProfitRate >= 100) {
-    return '当前平台佣金比例与目标利润率之和过高，无法计算合理售价。';
+    return t('error.quoteImpossible');
   }
   return null;
 }
@@ -371,13 +437,13 @@ quoteForm.addEventListener('submit', (event) => {
   const otherShare = otherCost / quantity;
   const fixedCost = purchaseCost + shippingShare + advertisingShare + otherShare;
   if (fixedCost <= 0) {
-    showQuoteError('请至少填写一项大于 0 的商品成本或费用。');
+    showQuoteError(t('error.quoteNoCost'));
     return;
   }
 
   const denominator = 1 - commissionDecimal - targetMarginDecimal;
   if (denominator <= 0) {
-    showQuoteError('当前平台佣金比例与目标利润率之和过高，无法计算合理售价。');
+    showQuoteError(t('error.quoteImpossible'));
     return;
   }
 
@@ -408,28 +474,28 @@ quoteForm.addEventListener('submit', (event) => {
   const platform = platformSelect.value;
   const platformName = platformSelect.selectedOptions[0].textContent.split('（')[0];
   const costItems = [
-    { name: '单件采购成本', value: purchaseCost },
-    { name: '分摊物流费用', value: shippingShare },
-    { name: '分摊广告费用', value: advertisingShare },
-    { name: '分摊其他费用', value: otherShare }
+    { name: t('pricing.costPurchase'), value: purchaseCost },
+    { name: t('pricing.costShipping'), value: shippingShare },
+    { name: t('pricing.costAdvertising'), value: advertisingShare },
+    { name: t('pricing.costOther'), value: otherShare }
   ].sort((a, b) => b.value - a.value);
   const mainCost = costItems[0];
   const mainCostShare = mainCost.value / fixedCost * 100;
-  const costAnalysis = `当前主要成本来源是${mainCost.name}，为 ${formatMoney(mainCost.value)} / 件，约占不含佣金单件成本的 ${mainCostShare.toFixed(2)}%。`;
+  const costAnalysis = t('pricing.costAnalysisText', { name: mainCost.name, amount: formatMoney(mainCost.value), share: mainCostShare.toFixed(2) });
 
-  const commissionLevel = commissionRate <= 5 ? '较低' : commissionRate <= 15 ? '中等' : '较高';
-  const commissionAnalysis = `${platformName} 当前使用 ${commissionRate.toFixed(2)}% 的佣金比例，影响程度${commissionLevel}。按普通建议价估算，每件平台佣金约为 ${formatMoney(expectedCommission)}。`;
+  const commissionLevel = commissionRate <= 5 ? t('pricing.commissionLow') : commissionRate <= 15 ? t('pricing.commissionMedium') : t('pricing.commissionHigh');
+  const commissionAnalysis = t('pricing.commissionAnalysisText', { platform: platformName, rate: commissionRate.toFixed(2), level: commissionLevel, amount: formatMoney(expectedCommission) });
 
   const marginAssessment = targetProfitRate < 10
-    ? '目标利润率偏低，可能难以覆盖退货、税费和汇率波动。'
+    ? t('pricing.marginLow')
     : targetProfitRate <= 30
-      ? '目标利润率处于较常见的区间，报价相对平衡。'
+      ? t('pricing.marginNormal')
       : targetProfitRate <= 45
-        ? '目标利润率偏高，请结合市场同类商品价格判断竞争力。'
-        : '目标利润率很高，建议重点确认市场是否能接受对应售价。';
-  const marginAnalysis = `当前目标利润率为 ${targetProfitRate.toFixed(2)}%。${marginAssessment}`;
+        ? t('pricing.marginHigh')
+        : t('pricing.marginVeryHigh');
+  const marginAnalysis = t('pricing.marginAnalysisText', { rate: targetProfitRate.toFixed(2), assessment: marginAssessment });
 
-  const safetyAnalysis = `普通建议价比最低售价高 5%，偏保守建议价高 10%。该区间提供了基础安全边际，但尚未单独计入退货损失、税费和平台其他费用。`;
+  const safetyAnalysis = t('pricing.safetyAnalysisText');
 
   document.getElementById('quoteCostAnalysis').textContent = costAnalysis;
   document.getElementById('quoteCommissionAnalysis').textContent = commissionAnalysis;
@@ -459,22 +525,22 @@ function validateComparisonInputs() {
   const baseValues = Object.fromEntries(comparisonBaseIds.map(id => [id, getNumber(id)]));
   const missingBase = comparisonBaseIds.some(id => document.getElementById(id).value.trim() === '');
   if (missingBase || Object.values(baseValues).some(value => !Number.isFinite(value))) {
-    return '请先在主利润计算器中填写公共基础数据。';
+    return t('error.comparisonBase');
   }
   if (baseValues.purchaseCost < 0 || baseValues.shippingCost < 0 || baseValues.otherCost < 0) {
-    return '公共基础数据中的采购、物流和其他费用不能为负数。';
+    return t('error.comparisonCosts');
   }
   if (!Number.isInteger(baseValues.quantity) || baseValues.quantity < 1) {
-    return '公共基础数据中的商品数量必须是大于或等于 1 的整数。';
+    return t('error.comparisonQuantity');
   }
   if (baseValues.exchangeRate <= 0) {
-    return '请输入正确的美元兑人民币汇率，例如 7.10。';
+    return t('error.exchangeRate');
   }
 
   const warningInput = document.getElementById('comparisonWarningRate');
   const warningRate = Number(warningInput.value);
   if (warningInput.value.trim() === '' || !Number.isFinite(warningRate) || warningRate < 0 || warningRate > 100) {
-    return '利润率警戒值应填写 0 到 100 之间的数字。';
+    return t('error.warningRange');
   }
 
   for (const key of ['A', 'B', 'C']) {
@@ -486,11 +552,11 @@ function validateComparisonInputs() {
     const commissionRate = Number(commissionInput.value);
     if ([priceInput, advertisingInput, commissionInput].some(input => input.value.trim() === '') ||
         [price, advertising, commissionRate].some(value => !Number.isFinite(value))) {
-      return `请完整填写方案 ${key} 的售价、广告费用和佣金比例。`;
+      return t('error.scenarioRequired', { scenario: key });
     }
-    if (price <= 0) return `方案 ${key} 的商品售价必须大于 0。`;
-    if (advertising < 0) return `方案 ${key} 的广告费用不能为负数。`;
-    if (commissionRate < 0 || commissionRate > 100) return `方案 ${key} 的平台佣金比例应填写 0 到 100 之间的数字。`;
+    if (price <= 0) return t('error.scenarioPrice', { scenario: key });
+    if (advertising < 0) return t('error.scenarioAdvertising', { scenario: key });
+    if (commissionRate < 0 || commissionRate > 100) return t('error.scenarioCommission', { scenario: key });
   }
   return null;
 }
@@ -505,7 +571,7 @@ function showComparisonError(message) {
 fillComparisonButton.addEventListener('click', () => {
   const error = validateInputs();
   if (error) {
-    showComparisonError(`请先完善主利润计算器：${error}`);
+    showComparisonError(t('error.completeMain', { message: error }));
     return;
   }
 
@@ -526,23 +592,13 @@ function calculateComparisonScenario(key, base) {
   const salePrice = getNumber(`scenario${key}Price`);
   const advertisingCost = getNumber(`scenario${key}Advertising`);
   const commissionRate = getNumber(`scenario${key}Commission`);
-  const revenue = salePrice * base.exchangeRate * base.quantity;
-  const productCost = base.purchaseCost * base.quantity;
-  const commission = revenue * (commissionRate / 100);
-  const totalCost = productCost + base.shippingCost + commission + advertisingCost + base.otherCost;
-  const netProfit = revenue - totalCost;
+  const metrics = calculateProfitMetrics({ ...base, salePrice, advertisingCost, commissionRate });
   return {
     key,
     salePrice,
     advertisingCost,
     commissionRate,
-    revenue,
-    productCost,
-    commission,
-    totalCost,
-    netProfit,
-    unitProfit: netProfit / base.quantity,
-    profitRate: netProfit / revenue * 100
+    ...metrics
   };
 }
 
@@ -571,7 +627,7 @@ comparisonForm.addEventListener('submit', (event) => {
   const scenarios = ['A', 'B', 'C'].map(key => calculateComparisonScenario(key, base));
   const platformSelect = document.getElementById('platform');
   const platformName = platformSelect.selectedOptions[0].textContent.split('（')[0];
-  const context = `公共平台：${platformName}；利润率警戒值：${warningRate.toFixed(2)}%。`;
+  const context = t('comparison.context', { platform: platformName, rate: warningRate.toFixed(2) });
   document.getElementById('comparisonContext').textContent = context;
 
   scenarios.forEach(scenario => {
@@ -579,8 +635,8 @@ comparisonForm.addEventListener('submit', (event) => {
     const marginClass = scenario.netProfit < 0
       ? 'metric-negative'
       : scenario.profitRate < warningRate ? 'metric-caution' : '';
-    const marginWarning = scenario.profitRate < warningRate ? `（低于 ${warningRate.toFixed(2)}%）` : '';
-    setComparisonCell(`compare${scenario.key}Status`, scenario.netProfit >= 0 ? '盈利' : '亏损', statusClass);
+    const marginWarning = scenario.profitRate < warningRate ? t('common.belowValue', { value: warningRate.toFixed(2) }) : '';
+    setComparisonCell(`compare${scenario.key}Status`, scenario.netProfit >= 0 ? t('status.profit') : t('status.loss'), statusClass);
     setComparisonCell(`compare${scenario.key}Revenue`, formatMoney(scenario.revenue));
     setComparisonCell(`compare${scenario.key}ProductCost`, formatMoney(scenario.productCost));
     setComparisonCell(`compare${scenario.key}Commission`, formatMoney(scenario.commission));
@@ -615,39 +671,23 @@ form.addEventListener('submit', (event) => {
   }
 
   errorMessage.hidden = true;
-  const purchaseCost = getNumber('purchaseCost');
-  const salePrice = getNumber('salePrice');
-  const exchangeRate = getNumber('exchangeRate');
-  const shippingCost = getNumber('shippingCost');
-  const commissionRate = getNumber('commissionRate');
-  const advertisingCost = getNumber('advertisingCost');
-  const otherCost = getNumber('otherCost');
-  const quantity = getNumber('quantity');
-
-  // 汇率的含义是“1 美元可以兑换多少人民币”。
-  // 计算公式：销售收入 = 美元售价 × 汇率 × 数量。
-  const revenue = salePrice * exchangeRate * quantity;
-  const productCost = purchaseCost * quantity;
-  const commission = revenue * (commissionRate / 100);
-  const totalCost = productCost + shippingCost + commission + advertisingCost + otherCost;
-  const netProfit = revenue - totalCost;
-  const unitProfit = netProfit / quantity;
-  const profitRate = (netProfit / revenue) * 100;
+  const data = getMainCalculatorData();
+  const { revenue, productCost, commission, totalCost, netProfit, unitTotalCost, unitProfit, profitRate, costRate } = calculateProfitMetrics(data);
 
   document.getElementById('revenue').textContent = formatMoney(revenue);
   document.getElementById('productCost').textContent = formatMoney(productCost);
   document.getElementById('commission').textContent = formatMoney(commission);
   document.getElementById('totalCost').textContent = formatMoney(totalCost);
   // 单件总成本把所有总费用平均分摊到每件商品上，包含平台佣金。
-  document.getElementById('unitTotalCost').textContent = formatMoney(totalCost / quantity);
+  document.getElementById('unitTotalCost').textContent = formatMoney(unitTotalCost);
   document.getElementById('netProfit').textContent = formatMoney(netProfit);
   document.getElementById('unitProfit').textContent = formatMoney(unitProfit);
   document.getElementById('profitRate').textContent = `${profitRate.toFixed(2)}%`;
-  document.getElementById('costRate').textContent = `${((totalCost / revenue) * 100).toFixed(2)}%`;
+  document.getElementById('costRate').textContent = `${costRate.toFixed(2)}%`;
 
   const isProfit = netProfit > 0;
   const status = document.getElementById('profitStatus');
-  status.textContent = isProfit ? '盈利' : '亏损';
+  status.textContent = isProfit ? t('status.profit') : t('status.loss');
   status.className = `status ${isProfit ? 'profit' : 'loss'}`;
   document.getElementById('netProfit').classList.toggle('loss', !isProfit);
   resultSection.hidden = false;
@@ -662,75 +702,58 @@ aiAnalysisButton.addEventListener('click', () => {
     return;
   }
 
-  const purchaseCost = getNumber('purchaseCost');
-  const salePrice = getNumber('salePrice');
-  const exchangeRate = getNumber('exchangeRate');
-  const shippingCost = getNumber('shippingCost');
-  const commissionRate = getNumber('commissionRate');
-  const advertisingCost = getNumber('advertisingCost');
-  const otherCost = getNumber('otherCost');
-  const quantity = getNumber('quantity');
-  const revenue = salePrice * exchangeRate * quantity;
-  const productCost = purchaseCost * quantity;
-  const commission = revenue * (commissionRate / 100);
-  const totalCost = productCost + shippingCost + commission + advertisingCost + otherCost;
-  const netProfit = revenue - totalCost;
-  const profitRate = (netProfit / revenue) * 100;
-  const costRate = (totalCost / revenue) * 100;
-  const platform = document.getElementById('platform').value;
+  const data = getMainCalculatorData();
+  const { revenue, productCost, commission, totalCost, netProfit, unitProfit, profitRate, costRate } = calculateProfitMetrics(data);
+  const { shippingCost, commissionRate, advertisingCost, otherCost, quantity, platform } = data;
   const commissionImpact = commission / revenue * 100;
   const advertisingImpact = advertisingCost / revenue * 100;
 
   document.getElementById('aiProfitAnalysis').textContent = netProfit > 0
-    ? `当前处于盈利状态，预计净利润为 ${formatMoney(netProfit)}，每件利润约为 ${formatMoney(netProfit / quantity)}。`
+    ? t('ai.profitPositive', { profit: formatMoney(netProfit), unitProfit: formatMoney(unitProfit) })
     : netProfit < 0
-      ? `当前处于亏损状态，预计亏损 ${formatMoney(Math.abs(netProfit))}，建议先检查售价和主要成本。`
-      : '当前处于盈亏平衡状态，暂时没有净利润。';
+      ? t('ai.profitNegative', { loss: formatMoney(Math.abs(netProfit)) })
+      : t('ai.profitEven');
 
   document.getElementById('aiMarginAnalysis').textContent = profitRate >= 30
-    ? `利润率为 ${profitRate.toFixed(2)}%，目前利润空间较好，但仍需留意平台费率和汇率波动。`
+    ? t('ai.marginGood', { rate: profitRate.toFixed(2) })
     : profitRate >= 15
-      ? `利润率为 ${profitRate.toFixed(2)}%，处于中等水平，建议继续优化采购和广告投入。`
+      ? t('ai.marginMedium', { rate: profitRate.toFixed(2) })
       : profitRate > 0
-        ? `利润率为 ${profitRate.toFixed(2)}%，利润空间偏低，成本或汇率稍有变化就可能影响盈利。`
-        : `利润率为 ${profitRate.toFixed(2)}%，目前没有形成安全利润空间。`;
+        ? t('ai.marginLow', { rate: profitRate.toFixed(2) })
+        : t('ai.marginNone', { rate: profitRate.toFixed(2) });
 
   const costItems = [
-    { name: '商品采购成本', value: productCost },
-    { name: '平台佣金', value: commission },
-    { name: '国际物流', value: shippingCost },
-    { name: '广告费用', value: advertisingCost },
-    { name: '其他费用', value: otherCost }
+    { name: t('ai.costPurchase'), value: productCost },
+    { name: t('ai.costCommission'), value: commission },
+    { name: t('ai.costShipping'), value: shippingCost },
+    { name: t('ai.costAdvertising'), value: advertisingCost },
+    { name: t('ai.costOther'), value: otherCost }
   ].sort((a, b) => b.value - a.value);
-  const topCosts = costItems.slice(0, 3).map(item => `${item.name} ${formatMoney(item.value)}（占销售额 ${(item.value / revenue * 100).toFixed(2)}%）`);
-  document.getElementById('aiCostAnalysis').textContent = `总费用为 ${formatMoney(totalCost)}，约占销售额 ${costRate.toFixed(2)}%。主要费用项目为：${topCosts.join('、')}。`;
+  const topCosts = costItems.slice(0, 3).map(item => t('ai.costItem', { name: item.name, amount: formatMoney(item.value), rate: (item.value / revenue * 100).toFixed(2) }));
+  document.getElementById('aiCostAnalysis').textContent = t('ai.costSummary', { total: formatMoney(totalCost), rate: costRate.toFixed(2), items: topCosts.join(t('common.listSeparator')) });
 
   const platformAnalysis = {
-    custom: `当前使用自定义平台费率 ${commissionRate.toFixed(2)}%，产生佣金 ${formatMoney(commission)}。建议根据实际平台账单继续校准佣金比例。`,
-    amazon: `当前选择 Amazon，使用的佣金比例为 ${commissionRate.toFixed(2)}%，佣金占销售额 ${commissionImpact.toFixed(2)}%；广告费用占销售额 ${advertisingImpact.toFixed(2)}%。Amazon 场景下应重点同时观察佣金和广告投入对利润的影响。`,
-    ebay: `当前选择 eBay，使用的佣金比例为 ${commissionRate.toFixed(2)}%，佣金占销售额 ${commissionImpact.toFixed(2)}%。建议结合成交费、推广费用和实际账单综合核对。`,
-    shopify: `当前选择 Shopify，使用的佣金比例为 ${commissionRate.toFixed(2)}%。独立站通常还需要关注支付处理和获客投入；当前广告费用占销售额 ${advertisingImpact.toFixed(2)}%。`,
-    tiktok: `当前选择 TikTok Shop，使用的佣金比例为 ${commissionRate.toFixed(2)}%。内容投放和广告费用会直接影响利润，当前广告费用占销售额 ${advertisingImpact.toFixed(2)}%。`,
-    aliexpress: `当前选择 AliExpress，使用的佣金比例为 ${commissionRate.toFixed(2)}%，佣金占销售额 ${commissionImpact.toFixed(2)}%。建议同时关注平台活动折扣和国际物流成本。`
+    custom: t('ai.platformCustom', { rate: commissionRate.toFixed(2), commission: formatMoney(commission) }),
+    amazon: t('ai.platformAmazon', { rate: commissionRate.toFixed(2), commissionRate: commissionImpact.toFixed(2), adRate: advertisingImpact.toFixed(2) }),
+    ebay: t('ai.platformEbay', { rate: commissionRate.toFixed(2), commissionRate: commissionImpact.toFixed(2) }),
+    shopify: t('ai.platformShopify', { rate: commissionRate.toFixed(2), adRate: advertisingImpact.toFixed(2) }),
+    tiktok: t('ai.platformTiktok', { rate: commissionRate.toFixed(2), adRate: advertisingImpact.toFixed(2) }),
+    aliexpress: t('ai.platformAliexpress', { rate: commissionRate.toFixed(2), commissionRate: commissionImpact.toFixed(2) })
   };
   document.getElementById('aiPlatformAnalysis').textContent = platformAnalysis[platform];
 
   const platformSuggestions = {
-    custom: '根据实际平台账单更新佣金比例，并把支付、退款等平台相关费用计入其他费用。',
-    amazon: '针对 Amazon，分别跟踪平台佣金与广告投产比，及时暂停高花费、低转化的广告活动。',
-    ebay: '针对 eBay，定期核对成交费和推广费，并比较开启推广前后的单件利润。',
-    shopify: '针对 Shopify，重点控制广告获客成本，并把支付处理费用纳入完整成本。',
-    tiktok: '针对 TikTok Shop，比较自然内容与付费投放的转化效果，避免广告费用增长快于销售额。',
-    aliexpress: '针对 AliExpress，评估平台活动折扣、佣金和国际物流叠加后的真实利润。'
+    custom: t('ai.suggestCustom'), amazon: t('ai.suggestAmazon'), ebay: t('ai.suggestEbay'),
+    shopify: t('ai.suggestShopify'), tiktok: t('ai.suggestTiktok'), aliexpress: t('ai.suggestAliexpress')
   };
 
   const suggestions = [
     netProfit <= 0
-      ? '当前处于亏损或持平状态，建议先提高售价或降低主要费用，再扩大销量。'
-      : '保留一定利润缓冲，应对汇率变化、退款和平台额外费用。',
+      ? t('ai.suggestLoss')
+      : t('ai.suggestBuffer'),
     productCost / revenue >= 0.4
-      ? '优先与供应商重新议价，或优化包装和采购批量，降低单件采购成本。'
-      : '继续比较供应商报价，定期复核单件采购成本，避免采购成本逐步上升。',
+      ? t('ai.suggestPurchaseHigh')
+      : t('ai.suggestPurchaseNormal'),
     platformSuggestions[platform]
   ];
   const suggestionList = document.getElementById('aiSuggestions');
@@ -751,34 +774,24 @@ exportPdfButton.addEventListener('click', () => {
     return;
   }
 
-  const purchaseCost = getNumber('purchaseCost');
-  const salePrice = getNumber('salePrice');
-  const exchangeRate = getNumber('exchangeRate');
-  const shippingCost = getNumber('shippingCost');
-  const commissionRate = getNumber('commissionRate');
-  const advertisingCost = getNumber('advertisingCost');
-  const otherCost = getNumber('otherCost');
-  const quantity = getNumber('quantity');
-  const revenue = salePrice * exchangeRate * quantity;
-  const productCost = purchaseCost * quantity;
-  const commission = revenue * (commissionRate / 100);
-  const totalCost = productCost + shippingCost + commission + advertisingCost + otherCost;
-  const netProfit = revenue - totalCost;
-  const profitRate = (netProfit / revenue) * 100;
-  const platformSelect = document.getElementById('platform');
-  const platformName = platformSelect.selectedOptions[0].textContent.split('（')[0];
+  const data = getMainCalculatorData();
+  const { productName, sku, purchaseCost, salePrice, exchangeRate, shippingCost, commissionRate, advertisingCost, otherCost, quantity, platform } = data;
+  const { revenue, productCost, commission, totalCost, netProfit, profitRate } = calculateProfitMetrics(data);
+  const platformName = getPlatformName(platform);
   const now = new Date();
-  const dateText = now.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const dateText = formatLocalizedDate(now);
 
   document.getElementById('pdfDate').textContent = dateText;
+  document.getElementById('pdfProductName').textContent = productName || t('status.notEntered');
+  document.getElementById('pdfSku').textContent = sku || t('status.notEntered');
   document.getElementById('pdfPlatform').textContent = platformName;
-  document.getElementById('pdfQuantity').textContent = `${quantity} 件`;
-  document.getElementById('pdfSalePrice').textContent = `$${salePrice.toFixed(2)} / 件`;
-  document.getElementById('pdfExchangeRate').textContent = `1 美元 = ${exchangeRate} 人民币`;
-  document.getElementById('pdfUnitPurchaseCost').textContent = `${formatMoney(purchaseCost)} / 件`;
+  document.getElementById('pdfQuantity').textContent = t('pdf.quantity', { quantity });
+  document.getElementById('pdfSalePrice').textContent = t('pdf.salePrice', { amount: formatUsd(salePrice) });
+  document.getElementById('pdfExchangeRate').textContent = t('pdf.exchangeRate', { rate: exchangeRate });
+  document.getElementById('pdfUnitPurchaseCost').textContent = t('pdf.unitAmount', { amount: formatMoney(purchaseCost) });
   document.getElementById('pdfProductCost').textContent = formatMoney(productCost);
   document.getElementById('pdfShippingCost').textContent = formatMoney(shippingCost);
-  document.getElementById('pdfCommission').textContent = `${formatMoney(commission)}（费率 ${commissionRate.toFixed(2)}%）`;
+  document.getElementById('pdfCommission').textContent = t('pdf.commission', { amount: formatMoney(commission), rate: commissionRate.toFixed(2) });
   document.getElementById('pdfAdvertisingCost').textContent = formatMoney(advertisingCost);
   document.getElementById('pdfOtherCost').textContent = formatMoney(otherCost);
   document.getElementById('pdfRevenue').textContent = formatMoney(revenue);
@@ -794,9 +807,9 @@ exportPdfButton.addEventListener('click', () => {
   if (hasBreakEvenResult) {
     document.getElementById('pdfBreakEvenUnitCost').textContent = formatMoney(latestBreakEvenResult.unitCost);
     document.getElementById('pdfBreakEvenCommissionRate').textContent = `${latestBreakEvenResult.commissionRate.toFixed(2)}%`;
-    document.getElementById('pdfBreakEvenRmb').textContent = `${formatMoney(latestBreakEvenResult.breakEvenRmb)} / 件`;
-    document.getElementById('pdfBreakEvenUsd').textContent = `${formatUsd(latestBreakEvenResult.breakEvenUsd)} / 件`;
-    document.getElementById('pdfSafePrice').textContent = `${latestBreakEvenResult.safetyLabel}%：${formatMoney(latestBreakEvenResult.safePriceRmb)} / ${formatUsd(latestBreakEvenResult.safePriceUsd)}`;
+    document.getElementById('pdfBreakEvenRmb').textContent = t('pdf.unitAmount', { amount: formatMoney(latestBreakEvenResult.breakEvenRmb) });
+    document.getElementById('pdfBreakEvenUsd').textContent = t('pdf.unitAmount', { amount: formatUsd(latestBreakEvenResult.breakEvenUsd) });
+    document.getElementById('pdfSafePrice').textContent = t('pdf.safePriceValue', { percent: latestBreakEvenResult.safetyLabel, cny: formatMoney(latestBreakEvenResult.safePriceRmb), usd: formatUsd(latestBreakEvenResult.safePriceUsd) });
     document.getElementById('pdfCurrentPriceGap').textContent = latestBreakEvenResult.gapText;
   }
 
@@ -841,7 +854,7 @@ exportPdfButton.addEventListener('click', () => {
   if (hasComparisonResult) {
     document.getElementById('pdfComparisonContext').textContent = latestComparisonResult.context;
     latestComparisonResult.scenarios.forEach(scenario => {
-      const marginWarning = scenario.profitRate < latestComparisonResult.warningRate ? '（低于警戒值）' : '';
+      const marginWarning = scenario.profitRate < latestComparisonResult.warningRate ? t('common.belowWarning') : '';
       document.getElementById(`pdfCompare${scenario.key}Revenue`).textContent = formatMoney(scenario.revenue);
       document.getElementById(`pdfCompare${scenario.key}TotalCost`).textContent = formatMoney(scenario.totalCost);
       document.getElementById(`pdfCompare${scenario.key}NetProfit`).textContent = formatMoney(scenario.netProfit);
@@ -850,15 +863,23 @@ exportPdfButton.addEventListener('click', () => {
     });
   }
 
-  // 临时修改网页标题，让浏览器建议一个清楚的 PDF 文件名。
-  const originalTitle = document.title;
-  const fileDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
-  document.title = `跨境电商利润分析报告_${fileDate}`;
-  window.addEventListener('afterprint', () => {
-    document.title = originalTitle;
-  }, { once: true });
+  // 批量分析已完成时，在主报告中加入简洁摘要。
+  const pdfBatchSection = document.getElementById('pdfBatchSection');
+  const hasBatchResult = latestBatchResult !== null;
+  pdfBatchSection.hidden = !hasBatchResult;
+  if (hasBatchResult) {
+    const summary = latestBatchResult.summary;
+    document.getElementById('pdfBatchTotalCount').textContent = t('pdf.batchCount', { count: summary.totalCount });
+    document.getElementById('pdfBatchStatusCount').textContent = t('pdf.batchStatus', { profit: summary.profitCount, loss: summary.lossCount });
+    document.getElementById('pdfBatchRevenue').textContent = formatMoney(summary.totalRevenue);
+    document.getElementById('pdfBatchProfit').textContent = formatMoney(summary.totalProfit);
+    document.getElementById('pdfBatchAverageMargin').textContent = `${summary.averageMargin.toFixed(2)}%`;
+    document.getElementById('pdfBatchFileName').textContent = latestBatchResult.fileName;
+  }
 
-  requestAnimationFrame(() => window.print());
+  // 临时修改网页标题，让浏览器建议一个清楚的 PDF 文件名。
+  const fileDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+  setPrintMode('main', t('pdf.fileProfit', { date: fileDate }));
 });
 
 clearQuoteButton.addEventListener('click', () => {
@@ -879,4 +900,569 @@ clearButton.addEventListener('click', () => {
   comparisonError.hidden = true;
   comparisonResultSection.hidden = true;
   latestComparisonResult = null;
+  editingProductSku = null;
+  saveProductButton.textContent = t('action.saveProduct');
 });
+
+// ---------- 产品 / SKU 管理 ----------
+function getSavedProducts() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(productStorageKey) || '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function storeProducts(products) {
+  try {
+    localStorage.setItem(productStorageKey, JSON.stringify(products));
+    return true;
+  } catch (error) {
+    showProductMessage(t('error.storage'), true);
+    return false;
+  }
+}
+
+function showProductMessage(message, isError = false) {
+  productMessage.textContent = message;
+  productMessage.className = `message ${isError ? 'error' : 'success'}`;
+  productMessage.hidden = false;
+}
+
+function formatSavedTime(isoText) {
+  const date = new Date(isoText);
+  return Number.isNaN(date.getTime()) ? t('common.unknown') : formatLocalizedDateTime(date);
+}
+
+function renderProducts() {
+  const keyword = document.getElementById('productSearch').value.trim().toLowerCase();
+  const products = getSavedProducts().filter(product =>
+    product.productName.toLowerCase().includes(keyword) || product.sku.toLowerCase().includes(keyword)
+  );
+  productListBody.replaceChildren(...products.map(product => {
+    const metrics = calculateProfitMetrics(product);
+    const row = document.createElement('tr');
+    const values = [
+      product.productName,
+      product.sku,
+      getPlatformName(product.platform),
+      formatUsd(product.salePrice),
+      formatMoney(metrics.netProfit),
+      `${metrics.profitRate.toFixed(2)}%`,
+      formatSavedTime(product.updatedAt)
+    ];
+    values.forEach((value, index) => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      if ((index === 4 || index === 5) && metrics.netProfit < 0) cell.className = 'metric-negative';
+      row.appendChild(cell);
+    });
+    const actionCell = document.createElement('td');
+    actionCell.className = 'table-actions';
+    [['load', t('action.load')], ['edit', t('action.edit')], ['delete', t('action.delete')]].forEach(([action, label]) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `table-button${action === 'delete' ? ' delete' : ''}`;
+      button.dataset.action = action;
+      button.dataset.sku = product.sku;
+      button.textContent = label;
+      actionCell.appendChild(button);
+    });
+    row.appendChild(actionCell);
+    return row;
+  }));
+  document.getElementById('emptyProductText').hidden = products.length > 0;
+}
+
+function fillMainCalculator(product, shouldEdit = false) {
+  document.getElementById('productName').value = product.productName;
+  document.getElementById('sku').value = product.sku;
+  document.getElementById('platform').value = product.platform;
+  ['purchaseCost', 'salePrice', 'exchangeRate', 'shippingCost', 'commissionRate', 'advertisingCost', 'otherCost', 'quantity'].forEach(id => {
+    document.getElementById(id).value = product[id];
+  });
+  editingProductSku = shouldEdit ? product.sku : null;
+  saveProductButton.textContent = shouldEdit ? t('action.updateProduct') : t('action.saveProduct');
+  form.requestSubmit();
+  document.getElementById('calculatorSection').scrollIntoView({ behavior: 'smooth' });
+  showProductMessage(shouldEdit
+    ? t('success.editingProduct', { name: product.productName, sku: product.sku })
+    : t('success.loadedProduct', { name: product.productName, sku: product.sku }));
+}
+
+saveProductButton.addEventListener('click', () => {
+  const error = validateInputs();
+  if (error) {
+    showProductMessage(t('error.savePrefix', { message: error }), true);
+    return;
+  }
+  const product = getMainCalculatorData();
+  if (!product.productName) {
+    showProductMessage(t('error.productName'), true);
+    return;
+  }
+  if (!product.sku) {
+    showProductMessage(t('error.sku'), true);
+    return;
+  }
+
+  const products = getSavedProducts();
+  const duplicateIndex = products.findIndex(item => item.sku.toLowerCase() === product.sku.toLowerCase());
+  const isSameEditingRecord = editingProductSku && product.sku.toLowerCase() === editingProductSku.toLowerCase();
+  if (duplicateIndex >= 0 && !isSameEditingRecord && !window.confirm(t('confirm.overwriteSku', { sku: product.sku }))) return;
+
+  product.updatedAt = new Date().toISOString();
+  if (editingProductSku && editingProductSku.toLowerCase() !== product.sku.toLowerCase()) {
+    const oldIndex = products.findIndex(item => item.sku.toLowerCase() === editingProductSku.toLowerCase());
+    if (oldIndex >= 0) products.splice(oldIndex, 1);
+  }
+  const targetIndex = products.findIndex(item => item.sku.toLowerCase() === product.sku.toLowerCase());
+  if (targetIndex >= 0) products[targetIndex] = product;
+  else products.unshift(product);
+
+  if (!storeProducts(products)) return;
+  editingProductSku = product.sku;
+  saveProductButton.textContent = t('action.updateProduct');
+  renderProducts();
+  showProductMessage(t('success.savedProduct', { name: product.productName }));
+});
+
+productListBody.addEventListener('click', event => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+  const products = getSavedProducts();
+  const product = products.find(item => item.sku === button.dataset.sku);
+  if (!product) {
+    showProductMessage(t('error.productNotFound'), true);
+    renderProducts();
+    return;
+  }
+  if (button.dataset.action === 'load') fillMainCalculator(product, false);
+  if (button.dataset.action === 'edit') fillMainCalculator(product, true);
+  if (button.dataset.action === 'delete' && window.confirm(t('confirm.deleteProduct', { name: product.productName, sku: product.sku }))) {
+    const nextProducts = products.filter(item => item.sku !== product.sku);
+    if (storeProducts(nextProducts)) {
+      if (editingProductSku === product.sku) {
+        editingProductSku = null;
+        saveProductButton.textContent = t('action.saveProduct');
+      }
+      renderProducts();
+      showProductMessage(t('success.deletedProduct'));
+    }
+  }
+});
+
+document.getElementById('productSearch').addEventListener('input', renderProducts);
+document.getElementById('clearAllProductsButton').addEventListener('click', () => {
+  const products = getSavedProducts();
+  if (!products.length) {
+    showProductMessage(t('error.noProducts'), true);
+    return;
+  }
+  if (!window.confirm(t('confirm.clearProducts', { count: products.length }))) return;
+  if (!window.confirm(t('confirm.clearProductsAgain'))) return;
+  if (storeProducts([])) {
+    editingProductSku = null;
+    saveProductButton.textContent = t('action.saveProduct');
+    renderProducts();
+    showProductMessage(t('success.clearedProducts'));
+  }
+});
+
+// ---------- Excel / CSV 批量利润分析 ----------
+const batchFieldAliases = {
+  sku: ['sku', 'sku编号', '商品sku', '产品sku'],
+  productName: ['产品名称', '商品名称', 'productname', 'product', 'name'],
+  platform: ['平台', '销售平台', 'platform', 'salesplatform'],
+  purchaseCost: ['单件采购成本', '采购成本', 'productcost', 'purchasecost', 'unitpurchasecost'],
+  salePrice: ['商品售价usd', '售价usd', '商品售价', 'sellingprice', 'saleprice', 'sellingpriceusd'],
+  exchangeRate: ['汇率', '美元兑人民币汇率', 'exchangerate', 'usdcnyrate', 'usdtorate'],
+  quantity: ['商品数量', '数量', 'quantity', 'qty'],
+  shippingCost: ['物流总费用', '国际物流总费用', '物流费用', 'shippingcost', 'logisticscost', 'totalshippingcost'],
+  commissionRate: ['平台佣金比例', '佣金比例', '平台佣金', 'commissionrate', 'platformcommission', 'commission'],
+  advertisingCost: ['广告总费用', '广告费用', 'advertisingcost', 'adcost', 'totaladvertisingcost'],
+  otherCost: ['其他总费用', '其他费用', 'othercost', 'totalothercost']
+};
+
+const batchFieldLabels = {
+  sku: 'batch.columnSku', productName: 'batch.columnProductName', platform: 'batch.columnPlatform', purchaseCost: 'batch.columnPurchaseCost',
+  salePrice: 'batch.columnSellingPrice', exchangeRate: 'batch.columnExchangeRate', quantity: 'batch.columnQuantity', shippingCost: 'batch.columnShippingCost',
+  commissionRate: 'batch.columnCommissionRate', advertisingCost: 'batch.columnAdvertisingCost', otherCost: 'batch.columnOtherCost'
+};
+
+function normalizeHeader(value) {
+  return String(value ?? '').trim().toLowerCase().replace(/[\s_\-（）()\/%￥¥$：:]/g, '');
+}
+
+function normalizePlatform(value) {
+  const normalized = normalizeHeader(value);
+  const aliases = {
+    amazon: 'amazon', 亚马逊: 'amazon', ebay: 'ebay', shopify: 'shopify',
+    tiktok: 'tiktok', tiktokshop: 'tiktok', 抖音小店: 'tiktok',
+    aliexpress: 'aliexpress', 速卖通: 'aliexpress', custom: 'custom', 自定义: 'custom'
+  };
+  return aliases[normalized] || String(value || t('platform.custom')).trim();
+}
+
+function mapBatchHeaders(headers) {
+  const normalizedHeaders = headers.map(normalizeHeader);
+  const mapping = {};
+  Object.entries(batchFieldAliases).forEach(([field, aliases]) => {
+    const accepted = aliases.map(normalizeHeader);
+    const index = normalizedHeaders.findIndex(header => accepted.includes(header));
+    if (index >= 0) mapping[field] = headers[index];
+  });
+  return mapping;
+}
+
+function validateBatchRow(raw, mapping, rowNumber) {
+  const text = field => String(raw[mapping[field]] ?? '').trim();
+  const number = field => Number(raw[mapping[field]]);
+  const data = {
+    sku: text('sku'), productName: text('productName'), platform: normalizePlatform(text('platform')),
+    purchaseCost: number('purchaseCost'), salePrice: number('salePrice'), exchangeRate: number('exchangeRate'),
+    quantity: number('quantity'), shippingCost: number('shippingCost'), commissionRate: number('commissionRate'),
+    advertisingCost: number('advertisingCost'), otherCost: number('otherCost')
+  };
+  if (!data.sku || !data.productName || !text('platform')) return t('error.batchRowIdentity', { row: rowNumber });
+  const numericFields = ['purchaseCost', 'salePrice', 'exchangeRate', 'quantity', 'shippingCost', 'commissionRate', 'advertisingCost', 'otherCost'];
+  if (numericFields.some(field => text(field) === '' || !Number.isFinite(data[field]))) return t('error.batchRowNumber', { row: rowNumber });
+  if (data.purchaseCost < 0 || data.shippingCost < 0 || data.advertisingCost < 0 || data.otherCost < 0) return t('error.batchRowNegative', { row: rowNumber });
+  if (data.salePrice <= 0) return t('error.batchRowPrice', { row: rowNumber });
+  if (data.exchangeRate <= 0) return t('error.batchRowRate', { row: rowNumber });
+  if (!Number.isInteger(data.quantity) || data.quantity <= 0) return t('error.batchRowQuantity', { row: rowNumber });
+  if (data.commissionRate < 0 || data.commissionRate > 100) return t('error.batchRowCommission', { row: rowNumber });
+  return { ...data, ...calculateProfitMetrics(data) };
+}
+
+function showBatchError(message) {
+  batchError.textContent = message;
+  batchError.hidden = false;
+  batchResultSection.hidden = true;
+  latestBatchResult = null;
+}
+
+function renderBatchResults() {
+  if (!latestBatchResult) return;
+  const filter = document.getElementById('batchFilter').value;
+  const sort = document.getElementById('batchSort').value;
+  let rows = latestBatchResult.rows.filter(row => filter === 'all' || (filter === 'profit' ? row.netProfit >= 0 : row.netProfit < 0));
+  rows = [...rows].sort((a, b) => {
+    if (sort === 'profit-desc') return b.netProfit - a.netProfit;
+    if (sort === 'profit-asc') return a.netProfit - b.netProfit;
+    if (sort === 'margin-desc') return b.profitRate - a.profitRate;
+    if (sort === 'margin-asc') return a.profitRate - b.profitRate;
+    return a.sku.localeCompare(b.sku, 'zh-CN', { numeric: true });
+  });
+  const body = document.getElementById('batchResultBody');
+  body.replaceChildren(...rows.map(item => {
+    const row = document.createElement('tr');
+    [item.sku, item.productName, getPlatformName(item.platform), formatUsd(item.salePrice), formatMoney(item.netProfit), formatMoney(item.unitProfit), `${item.profitRate.toFixed(2)}%`, item.netProfit >= 0 ? t('status.profit') : t('status.loss')].forEach((value, index) => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      if (index >= 4 && (index === 4 || index === 5 || index === 6 || index === 7)) cell.className = item.netProfit >= 0 ? 'metric-positive' : 'metric-negative';
+      row.appendChild(cell);
+    });
+    return row;
+  }));
+  document.getElementById('batchEmptyFilter').hidden = rows.length > 0;
+}
+
+function updateBatchSummary(summary) {
+  document.getElementById('batchTotalCount').textContent = summary.totalCount;
+  document.getElementById('batchProfitCount').textContent = summary.profitCount;
+  document.getElementById('batchLossCount').textContent = summary.lossCount;
+  document.getElementById('batchRevenue').textContent = formatMoney(summary.totalRevenue);
+  document.getElementById('batchProfit').textContent = formatMoney(summary.totalProfit);
+  document.getElementById('batchProfit').className = summary.totalProfit >= 0 ? 'metric-positive' : 'metric-negative';
+  document.getElementById('batchAverageMargin').textContent = `${summary.averageMargin.toFixed(2)}%`;
+}
+
+document.getElementById('downloadBatchTemplateButton').addEventListener('click', () => {
+  const rows = [
+    Object.values(batchFieldLabels).map(key => t(key)),
+    ['CUP-001', t('batch.sampleProduct'), 'Amazon', '50', '20', '7.10', '10', '100', '15', '50', '20']
+  ];
+  downloadCsv(t('batch.templateFileName'), rows);
+});
+
+document.getElementById('analyzeBatchButton').addEventListener('click', async () => {
+  const file = batchFileInput.files[0];
+  if (!file) {
+    showBatchError(t('error.batchChooseFile'));
+    return;
+  }
+  if (!/\.(csv|xlsx)$/i.test(file.name)) {
+    showBatchError(t('error.batchFileType'));
+    return;
+  }
+  if (typeof XLSX === 'undefined') {
+    showBatchError(t('error.batchLibrary'));
+    return;
+  }
+  try {
+    // CSV 按 UTF-8 文本读取，避免中文列名出现乱码；XLSX 使用二进制读取。
+    const workbook = /\.csv$/i.test(file.name)
+      ? XLSX.read(await file.text(), { type: 'string' })
+      : XLSX.read(await file.arrayBuffer(), { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: true });
+    if (!rawRows.length) throw new Error(t('error.batchEmpty'));
+    const headers = Object.keys(rawRows[0]);
+    const mapping = mapBatchHeaders(headers);
+    const missingFields = Object.keys(batchFieldLabels).filter(field => !mapping[field]);
+    if (missingFields.length) throw new Error(t('error.batchColumns', { columns: missingFields.map(field => t(batchFieldLabels[field])).join(t('common.listSeparator')) }));
+    const rows = rawRows.map((raw, index) => validateBatchRow(raw, mapping, index + 2));
+    const firstError = rows.find(item => typeof item === 'string');
+    if (firstError) throw new Error(firstError);
+    const duplicateSkus = rows.map(row => row.sku.toLowerCase()).filter((sku, index, all) => all.indexOf(sku) !== index);
+    if (duplicateSkus.length) throw new Error(t('error.batchDuplicates', { skus: [...new Set(duplicateSkus)].join(t('common.listSeparator')) }));
+    const summary = {
+      totalCount: rows.length,
+      profitCount: rows.filter(row => row.netProfit >= 0).length,
+      lossCount: rows.filter(row => row.netProfit < 0).length,
+      totalRevenue: rows.reduce((sum, row) => sum + row.revenue, 0),
+      totalProfit: rows.reduce((sum, row) => sum + row.netProfit, 0),
+      averageMargin: rows.reduce((sum, row) => sum + row.profitRate, 0) / rows.length
+    };
+    latestBatchResult = { fileName: file.name, rows, summary };
+    document.getElementById('batchFileName').textContent = t('common.filePrefix', { name: file.name });
+    updateBatchSummary(summary);
+    document.getElementById('batchFilter').value = 'all';
+    document.getElementById('batchSort').value = 'sku';
+    renderBatchResults();
+    batchError.hidden = true;
+    batchResultSection.hidden = false;
+  } catch (error) {
+    showBatchError(error.message || t('error.batchRead'));
+  }
+});
+
+document.getElementById('batchFilter').addEventListener('change', renderBatchResults);
+document.getElementById('batchSort').addEventListener('change', renderBatchResults);
+
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function downloadCsv(fileName, rows) {
+  const csv = '\uFEFF' + rows.map(row => row.map(csvEscape).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('exportBatchCsvButton').addEventListener('click', () => {
+  if (!latestBatchResult) return;
+  const header = [t('batch.columnSku'), t('batch.columnProductName'), t('batch.columnPlatform'), t('batch.columnSellingPrice'), t('metric.revenueShort'), t('metric.productCost'), t('metric.commission'), t('metric.totalCost'), t('metric.netProfit'), t('metric.unitProfit'), t('metric.margin'), t('status.profitLoss')];
+  const rows = latestBatchResult.rows.map(item => [
+    item.sku, item.productName, getPlatformName(item.platform), item.salePrice.toFixed(2), item.revenue.toFixed(2),
+    item.productCost.toFixed(2), item.commission.toFixed(2), item.totalCost.toFixed(2), item.netProfit.toFixed(2),
+    item.unitProfit.toFixed(2), item.profitRate.toFixed(2), item.netProfit >= 0 ? t('status.profit') : t('status.loss')
+  ]);
+  downloadCsv(t('batch.resultsFileName'), [header, ...rows]);
+});
+
+document.getElementById('exportBatchPdfButton').addEventListener('click', () => {
+  if (!latestBatchResult) return;
+  const now = new Date();
+  const summary = latestBatchResult.summary;
+  document.getElementById('batchPdfDate').textContent = formatLocalizedDate(now);
+  const summaryItems = [
+    [t('batch.totalSku'), summary.totalCount], [t('batch.profitLoss'), `${summary.profitCount} / ${summary.lossCount}`],
+    [t('metric.totalRevenue'), formatMoney(summary.totalRevenue)], [t('metric.totalProfit'), formatMoney(summary.totalProfit)],
+    [t('metric.averageMargin'), `${summary.averageMargin.toFixed(2)}%`], [t('batch.sourceFile'), latestBatchResult.fileName]
+  ];
+  document.getElementById('batchPdfSummary').replaceChildren(...summaryItems.map(([label, value]) => {
+    const item = document.createElement('div');
+    const span = document.createElement('span');
+    const strong = document.createElement('strong');
+    span.textContent = label;
+    strong.textContent = value;
+    item.append(span, strong);
+    return item;
+  }));
+  document.getElementById('batchPdfBody').replaceChildren(...latestBatchResult.rows.map(item => {
+    const row = document.createElement('tr');
+    [item.sku, item.productName, getPlatformName(item.platform), formatMoney(item.netProfit), `${item.profitRate.toFixed(2)}%`, item.netProfit >= 0 ? t('status.profit') : t('status.loss')].forEach(value => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    return row;
+  }));
+  const date = now.toISOString().slice(0, 10);
+  setPrintMode('batch', t('pdf.fileBatch', { date }));
+});
+
+// ---------- 外贸出口报价助手 ----------
+const tradeInputIds = ['tradePurchaseCost', 'tradeQuantity', 'tradeDomesticCost', 'tradePortCost', 'tradeInternationalCost', 'tradeInsuranceCost', 'tradeOtherCost', 'tradeExchangeRate', 'tradeTargetMargin'];
+function validateTradeQuoteInputs() {
+  const values = Object.fromEntries(tradeInputIds.map(id => [id, getNumber(id)]));
+  if (tradeInputIds.some(id => document.getElementById(id).value.trim() === '') || Object.values(values).some(value => !Number.isFinite(value))) return t('error.tradeRequired');
+  if (!Number.isInteger(values.tradeQuantity) || values.tradeQuantity <= 0) return t('error.quantityPositive');
+  if (values.tradeExchangeRate <= 0) return t('error.exchangeRate');
+  const amountIds = ['tradePurchaseCost', 'tradeDomesticCost', 'tradePortCost', 'tradeInternationalCost', 'tradeInsuranceCost', 'tradeOtherCost'];
+  if (amountIds.some(id => values[id] < 0)) return t('error.tradeAmounts');
+  if (values.tradeTargetMargin < 0 || values.tradeTargetMargin >= 100) return t('error.tradeMargin');
+  return null;
+}
+
+function calculateTradeQuote() {
+  const term = document.getElementById('tradeTerm').value;
+  const purchaseCost = getNumber('tradePurchaseCost');
+  const quantity = getNumber('tradeQuantity');
+  const domesticCost = getNumber('tradeDomesticCost');
+  const portCost = getNumber('tradePortCost');
+  const internationalCost = getNumber('tradeInternationalCost');
+  const insuranceCost = getNumber('tradeInsuranceCost');
+  const otherCost = getNumber('tradeOtherCost');
+  const exchangeRate = getNumber('tradeExchangeRate');
+  const targetMargin = getNumber('tradeTargetMargin');
+  const included = {
+    domesticCost: ['FOB', 'CFR', 'CIF'].includes(term) ? domesticCost : 0,
+    portCost: ['FOB', 'CFR', 'CIF'].includes(term) ? portCost : 0,
+    internationalCost: ['CFR', 'CIF'].includes(term) ? internationalCost : 0,
+    insuranceCost: term === 'CIF' ? insuranceCost : 0
+  };
+  const productCost = purchaseCost * quantity;
+  const totalCost = productCost + otherCost + included.domesticCost + included.portCost + included.internationalCost + included.insuranceCost;
+  const quoteRmb = totalCost / (1 - targetMargin / 100);
+  const quoteUsd = quoteRmb / exchangeRate;
+  return {
+    term, quoteUnit: document.getElementById('tradeQuoteUnit').value, purchaseCost, quantity, productCost,
+    domesticCost, portCost, internationalCost, insuranceCost, otherCost, exchangeRate, targetMargin, included,
+    totalCost, unitCost: totalCost / quantity, profitAmount: quoteRmb - totalCost,
+    quoteRmb, quoteUsd, unitQuoteRmb: quoteRmb / quantity, unitQuoteUsd: quoteUsd / quantity
+  };
+}
+
+function includedCostText(original, included) {
+  return included > 0 || original === 0 ? formatMoney(included) : t('trade.notIncluded', { amount: formatMoney(original) });
+}
+
+tradeQuoteForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const error = validateTradeQuoteInputs();
+  if (error) {
+    tradeQuoteError.textContent = error;
+    tradeQuoteError.hidden = false;
+    tradeQuoteResultSection.hidden = true;
+    latestTradeQuoteResult = null;
+    return;
+  }
+  const result = calculateTradeQuote();
+  const explanations = {
+    EXW: t('trade.exwExplanation'), FOB: t('trade.fobExplanation'),
+    CFR: t('trade.cfrExplanation'), CIF: t('trade.cifExplanation')
+  };
+  document.getElementById('tradeQuoteStatus').textContent = t('trade.status', { term: result.term, rate: result.targetMargin.toFixed(2) });
+  document.getElementById('tradePrimaryLabel').textContent = result.quoteUnit === 'unit' ? t('trade.primaryUnitUsd') : t('trade.primaryBatchUsd');
+  document.getElementById('tradePrimaryQuote').textContent = formatUsd(result.quoteUnit === 'unit' ? result.unitQuoteUsd : result.quoteUsd);
+  document.getElementById('tradeTotalCost').textContent = formatMoney(result.totalCost);
+  document.getElementById('tradeUnitCost').textContent = formatMoney(result.unitCost);
+  document.getElementById('tradeProfitAmount').textContent = formatMoney(result.profitAmount);
+  document.getElementById('tradeQuoteRmb').textContent = formatMoney(result.quoteRmb);
+  document.getElementById('tradeQuoteUsd').textContent = formatUsd(result.quoteUsd);
+  document.getElementById('tradeUnitQuote').textContent = `${formatMoney(result.unitQuoteRmb)} / ${formatUsd(result.unitQuoteUsd)}`;
+  document.getElementById('tradeBatchQuote').textContent = `${formatMoney(result.quoteRmb)} / ${formatUsd(result.quoteUsd)}`;
+  document.getElementById('tradeProductCost').textContent = formatMoney(result.productCost);
+  document.getElementById('tradeDomesticIncluded').textContent = includedCostText(result.domesticCost, result.included.domesticCost);
+  document.getElementById('tradePortIncluded').textContent = includedCostText(result.portCost, result.included.portCost);
+  document.getElementById('tradeInternationalIncluded').textContent = includedCostText(result.internationalCost, result.included.internationalCost);
+  document.getElementById('tradeInsuranceIncluded').textContent = includedCostText(result.insuranceCost, result.included.insuranceCost);
+  document.getElementById('tradeOtherIncluded').textContent = formatMoney(result.otherCost);
+  document.getElementById('tradeQuoteExplanation').textContent = explanations[result.term];
+  result.explanation = explanations[result.term];
+  latestTradeQuoteResult = result;
+  tradeQuoteError.hidden = true;
+  tradeQuoteResultSection.hidden = false;
+});
+
+tradeInputIds.forEach(id => document.getElementById(id).addEventListener('input', () => {
+  tradeQuoteError.hidden = true;
+  tradeQuoteResultSection.hidden = true;
+  latestTradeQuoteResult = null;
+}));
+['tradeTerm', 'tradeQuoteUnit'].forEach(id => document.getElementById(id).addEventListener('change', () => {
+  tradeQuoteResultSection.hidden = true;
+  latestTradeQuoteResult = null;
+}));
+
+document.getElementById('clearTradeQuoteButton').addEventListener('click', () => {
+  tradeQuoteForm.reset();
+  tradeQuoteError.hidden = true;
+  tradeQuoteResultSection.hidden = true;
+  latestTradeQuoteResult = null;
+});
+
+document.getElementById('exportTradePdfButton').addEventListener('click', () => {
+  if (!latestTradeQuoteResult) return;
+  const result = latestTradeQuoteResult;
+  const now = new Date();
+  document.getElementById('tradePdfDate').textContent = formatLocalizedDate(now);
+  const rows = [
+    [t('field.tradeTerm'), result.term, t('field.targetMarginShort'), `${result.targetMargin.toFixed(2)}%`],
+    [t('field.quantity'), t('pdf.quantity', { quantity: result.quantity }), t('batch.columnExchangeRate'), t('pdf.exchangeRate', { rate: result.exchangeRate })],
+    [t('trade.totalCost'), formatMoney(result.totalCost), t('trade.unitCost'), formatMoney(result.unitCost)],
+    [t('trade.profitAmount'), formatMoney(result.profitAmount), t('field.quoteUnit'), result.quoteUnit === 'unit' ? t('trade.unit') : t('trade.batch')],
+    [t('trade.batchCny'), formatMoney(result.quoteRmb), t('trade.batchUsd'), formatUsd(result.quoteUsd)],
+    [t('trade.unitQuoteCny'), formatMoney(result.unitQuoteRmb), t('trade.unitQuoteUsd'), formatUsd(result.unitQuoteUsd)],
+    [t('trade.productCost'), formatMoney(result.productCost), t('trade.other'), formatMoney(result.otherCost)],
+    [t('trade.domestic'), includedCostText(result.domesticCost, result.included.domesticCost), t('trade.port'), includedCostText(result.portCost, result.included.portCost)],
+    [t('trade.international'), includedCostText(result.internationalCost, result.included.internationalCost), t('trade.insurance'), includedCostText(result.insuranceCost, result.included.insuranceCost)]
+  ];
+  document.getElementById('tradePdfBody').replaceChildren(...rows.map(values => {
+    const row = document.createElement('tr');
+    values.forEach((value, index) => {
+      const cell = document.createElement(index % 2 === 0 ? 'th' : 'td');
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    return row;
+  }));
+  document.getElementById('tradePdfExplanation').textContent = result.explanation;
+  setPrintMode('trade', t('pdf.fileTrade', { term: result.term, date: now.toISOString().slice(0, 10) }));
+});
+
+// 切换语言后，重新渲染已经显示的动态结果；所有计算仍使用原始输入和同一套公式。
+window.addEventListener('languagechange', () => {
+  const hadMainResult = !resultSection.hidden;
+  const hadAiAnalysis = !aiAnalysisSection.hidden;
+  const hadBreakEvenResult = !breakEvenResultSection.hidden;
+  const hadQuoteResult = !quoteResultSection.hidden;
+  const hadComparisonResult = !comparisonResultSection.hidden;
+  const hadTradeResult = !tradeQuoteResultSection.hidden;
+
+  productMessage.hidden = true;
+  errorMessage.hidden = true;
+  breakEvenError.hidden = true;
+  quoteError.hidden = true;
+  comparisonError.hidden = true;
+  batchError.hidden = true;
+  tradeQuoteError.hidden = true;
+  simulationResult.hidden = true;
+
+  saveProductButton.textContent = editingProductSku ? t('action.updateProduct') : t('action.saveProduct');
+  renderProducts();
+  if (hadMainResult) form.requestSubmit();
+  if (hadAiAnalysis) aiAnalysisButton.click();
+  if (hadBreakEvenResult) breakEvenForm.requestSubmit();
+  if (hadQuoteResult) quoteForm.requestSubmit();
+  if (hadComparisonResult) comparisonForm.requestSubmit();
+  if (latestBatchResult) {
+    updateBatchSummary(latestBatchResult.summary);
+    document.getElementById('batchFileName').textContent = t('common.filePrefix', { name: latestBatchResult.fileName });
+    renderBatchResults();
+  }
+  if (hadTradeResult) tradeQuoteForm.requestSubmit();
+});
+
+renderProducts();

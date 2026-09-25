@@ -8,44 +8,32 @@
 </head>
 <body>
   <main class="container">
+    <nav class="language-switcher" aria-label="语言选择">
+      <button type="button" id="langZh" data-language="zh" aria-pressed="true">中文</button>
+      <span aria-hidden="true">|</span>
+      <button type="button" id="langEn" data-language="en" aria-pressed="false">English</button>
+    </nav>
     <header class="page-header home-hero">
       <div class="badge">跨境电商工具</div>
       <h1>跨境电商利润计算器</h1>
       <p>帮助跨境卖家快速计算成本、利润和商品报价。</p>
-      <div class="feature-grid" aria-label="主要功能">
-        <article class="feature-card">
-          <div class="feature-icon">01</div>
-          <h2>利润计算</h2>
-          <p>快速了解销售收入、总费用和实际净利润。</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">02</div>
-          <h2>平台佣金分析</h2>
-          <p>参考不同平台佣金比例，估算平台费用影响。</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">03</div>
-          <h2>AI利润分析</h2>
-          <p>分析盈利水平、成本结构和平台费用影响。</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">04</div>
-          <h2>商品报价助手</h2>
-          <p>根据成本、平台费用和目标利润率，自动计算建议销售价格。</p>
-          <a class="feature-action" href="#quoteAssistantSection">开始报价</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">05</div>
-          <h2>多方案对比</h2>
-          <p>比较不同售价、广告费用和平台佣金下的利润表现。</p>
-          <a class="feature-action" href="#comparisonSection">开始对比</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">06</div>
-          <h2>盈亏平衡分析</h2>
-          <p>计算不亏损的最低售价，并模拟主要成本上涨的影响。</p>
-          <a class="feature-action" href="#breakEvenSection">开始分析</a>
-        </article>
+      <div class="feature-group">
+        <h2 class="feature-group-title">跨境电商工具</h2>
+        <div class="feature-grid" aria-label="跨境电商工具">
+          <article class="feature-card"><div class="feature-icon">01</div><h2>利润计算</h2><p>快速了解销售收入、总费用和实际净利润。</p><a class="feature-action" href="#calculatorSection">开始计算</a></article>
+          <article class="feature-card"><div class="feature-icon">02</div><h2>AI利润分析</h2><p>分析盈利水平、成本结构和平台费用影响。</p><a class="feature-action" href="#calculatorSection">查看分析</a></article>
+          <article class="feature-card"><div class="feature-icon">03</div><h2>商品报价助手</h2><p>根据成本、平台费用和目标利润率计算建议销售价格。</p><a class="feature-action" href="#quoteAssistantSection">开始报价</a></article>
+          <article class="feature-card"><div class="feature-icon">04</div><h2>盈亏平衡分析</h2><p>计算不亏损的最低售价，并模拟主要成本变化。</p><a class="feature-action" href="#breakEvenSection">开始分析</a></article>
+          <article class="feature-card"><div class="feature-icon">05</div><h2>多方案对比</h2><p>比较不同售价、广告费用和佣金下的利润表现。</p><a class="feature-action" href="#comparisonSection">开始对比</a></article>
+          <article class="feature-card"><div class="feature-icon">06</div><h2>产品/SKU管理</h2><p>保存常用产品数据，之后可以快速搜索和加载。</p><a class="feature-action" href="#productManagerSection">管理产品</a></article>
+          <article class="feature-card"><div class="feature-icon">07</div><h2>批量利润分析</h2><p>上传 CSV 或 XLSX，一次计算多个 SKU 的利润。</p><a class="feature-action" href="#batchAnalysisSection">批量分析</a></article>
+        </div>
+      </div>
+      <div class="feature-group trade-feature-group">
+        <h2 class="feature-group-title">外贸报价工具</h2>
+        <div class="feature-grid feature-grid-compact" aria-label="外贸报价工具">
+          <article class="feature-card"><div class="feature-icon">08</div><h2>外贸出口报价</h2><p>按 EXW、FOB、CFR、CIF 测算人民币和美元报价。</p><a class="feature-action" href="#tradeQuoteSection">开始报价</a></article>
+        </div>
       </div>
       <a class="button primary hero-button" href="#calculatorSection">开始计算</a>
     </header>
@@ -58,6 +46,14 @@
         </div>
 
         <div class="input-grid">
+          <label class="field">
+            <span>产品名称（选填）</span>
+            <input id="productName" type="text" maxlength="80" placeholder="例如：不锈钢保温杯">
+          </label>
+          <label class="field">
+            <span>SKU 编号（保存产品时必填）</span>
+            <input id="sku" type="text" maxlength="50" placeholder="例如：CUP-001">
+          </label>
           <label class="field">
             <span>销售平台</span>
             <select id="platform">
@@ -179,6 +175,33 @@
         <p>平台佣金 = 销售收入 × 平台佣金比例</p>
         <p>净利润 = 销售收入 - 总费用</p>
       </section>
+    </section>
+
+    <section id="productManagerSection" class="calculator-card product-manager-card" aria-label="产品管理">
+      <div class="section-title">
+        <div>
+          <h2>产品/SKU 管理</h2>
+          <p class="section-description">保存主利润计算器中的当前产品，之后可以快速加载继续计算。</p>
+        </div>
+        <span>保存在当前浏览器</span>
+      </div>
+      <div id="productMessage" class="message" role="status" hidden></div>
+      <div class="manager-toolbar">
+        <button type="button" id="saveProductButton" class="button primary">保存产品</button>
+        <label class="field manager-search">
+          <span>搜索产品</span>
+          <input id="productSearch" type="search" placeholder="输入产品名称或 SKU">
+        </label>
+        <button type="button" id="clearAllProductsButton" class="button danger-button">清空全部产品</button>
+      </div>
+      <p class="quote-warning">当前产品数据仅保存在本浏览器中，清除浏览器数据后可能丢失。</p>
+      <div class="data-table-wrap">
+        <table class="data-table product-table">
+          <thead><tr><th>产品名称</th><th>SKU</th><th>平台</th><th>售价</th><th>利润</th><th>利润率</th><th>最后更新时间</th><th>操作</th></tr></thead>
+          <tbody id="productListBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyProductText" class="empty-state">还没有保存产品。请先填写主利润计算器，再点击“保存产品”。</p>
     </section>
 
     <section id="breakEvenSection" class="calculator-card break-even-card" aria-label="盈亏平衡分析">
@@ -428,11 +451,106 @@
       </section>
     </section>
 
+    <section id="batchAnalysisSection" class="calculator-card batch-analysis-card" aria-label="批量利润分析">
+      <div class="section-title">
+        <div>
+          <h2>Excel / CSV 批量利润分析</h2>
+          <p class="section-description">上传表格，一次计算多个 SKU。文件只在当前浏览器中读取和分析。</p>
+        </div>
+        <span>支持 .csv 和 .xlsx</span>
+      </div>
+      <div class="batch-upload-panel">
+        <label class="field file-field">
+          <span>选择批量分析文件</span>
+          <input id="batchFile" type="file" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
+        </label>
+        <div class="batch-template-actions">
+          <button type="button" id="downloadBatchTemplateButton" class="button secondary">下载批量分析模板</button>
+          <button type="button" id="analyzeBatchButton" class="button primary">开始批量分析</button>
+        </div>
+      </div>
+      <p class="field-note">必需列：SKU、产品名称、平台、单件采购成本、商品售价USD、汇率、商品数量、物流总费用、平台佣金比例、广告总费用、其他总费用。</p>
+      <div id="batchError" class="message error" role="alert" hidden></div>
+
+      <section id="batchResultSection" class="results batch-results" aria-live="polite" hidden>
+        <div class="result-heading"><div><h2>批量分析结果</h2><p id="batchFileName" class="status"></p></div></div>
+        <div class="batch-summary-grid">
+          <div><span>SKU 总数</span><strong id="batchTotalCount">0</strong></div>
+          <div><span>盈利 SKU</span><strong id="batchProfitCount">0</strong></div>
+          <div><span>亏损 SKU</span><strong id="batchLossCount">0</strong></div>
+          <div><span>总销售收入</span><strong id="batchRevenue">¥0.00</strong></div>
+          <div><span>总利润</span><strong id="batchProfit">¥0.00</strong></div>
+          <div><span>平均利润率</span><strong id="batchAverageMargin">0.00%</strong></div>
+        </div>
+        <div class="batch-controls">
+          <label class="field"><span>筛选</span><select id="batchFilter"><option value="all">全部</option><option value="profit">盈利</option><option value="loss">亏损</option></select></label>
+          <label class="field"><span>排序</span><select id="batchSort"><option value="sku">按 SKU</option><option value="profit-desc">按净利润（高到低）</option><option value="profit-asc">按净利润（低到高）</option><option value="margin-desc">按利润率（高到低）</option><option value="margin-asc">按利润率（低到高）</option></select></label>
+          <button type="button" id="exportBatchCsvButton" class="button secondary">导出分析结果 CSV</button>
+          <button type="button" id="exportBatchPdfButton" class="button primary">导出批量分析摘要 PDF</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table batch-table">
+            <thead><tr><th>SKU</th><th>产品名称</th><th>平台</th><th>售价</th><th>净利润</th><th>单件利润</th><th>利润率</th><th>盈亏状态</th></tr></thead>
+            <tbody id="batchResultBody"></tbody>
+          </table>
+        </div>
+        <p id="batchEmptyFilter" class="empty-state" hidden>当前筛选条件下没有数据。</p>
+      </section>
+    </section>
+
+    <section id="tradeQuoteSection" class="calculator-card trade-quote-card" aria-label="外贸出口报价助手">
+      <form id="tradeQuoteForm" novalidate>
+        <div class="section-title">
+          <div>
+            <h2>外贸出口报价助手</h2>
+            <p class="section-description">按 EXW、FOB、CFR、CIF 的费用范围估算出口报价。</p>
+          </div>
+          <span>金额单位：人民币</span>
+        </div>
+        <div class="input-grid">
+          <label class="field"><span>贸易术语</span><select id="tradeTerm"><option value="EXW">EXW</option><option value="FOB">FOB</option><option value="CFR">CFR</option><option value="CIF">CIF</option></select></label>
+          <label class="field"><span>报价单位</span><select id="tradeQuoteUnit"><option value="unit">每件</option><option value="batch">整批</option></select></label>
+          <label class="field"><span>单件产品采购成本（人民币）</span><input id="tradePurchaseCost" type="number" min="0" step="0.01" placeholder="例如：100" inputmode="decimal" required></label>
+          <label class="field"><span>商品数量</span><input id="tradeQuantity" type="number" min="1" step="1" placeholder="例如：10" inputmode="numeric" required></label>
+          <label class="field"><span>包装及国内运输总费用（人民币）</span><input id="tradeDomesticCost" type="number" min="0" step="0.01" placeholder="例如：200" inputmode="decimal" required></label>
+          <label class="field"><span>港杂费/报关费总费用（人民币）</span><input id="tradePortCost" type="number" min="0" step="0.01" placeholder="例如：100" inputmode="decimal" required></label>
+          <label class="field"><span>国际海运/空运总费用（人民币）</span><input id="tradeInternationalCost" type="number" min="0" step="0.01" placeholder="例如：500" inputmode="decimal" required></label>
+          <label class="field"><span>保险费（人民币）</span><input id="tradeInsuranceCost" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required></label>
+          <label class="field"><span>其他费用（人民币）</span><input id="tradeOtherCost" type="number" min="0" step="0.01" placeholder="例如：50" inputmode="decimal" required></label>
+          <label class="field"><span>美元兑人民币汇率（1 美元 = ? 人民币）</span><input id="tradeExchangeRate" type="number" min="0" step="0.0001" placeholder="例如：7.10" inputmode="decimal" required><small class="field-note">美元报价 = 人民币报价 ÷ 汇率。</small></label>
+          <label class="field"><span>目标利润率（%）</span><input id="tradeTargetMargin" type="number" min="0" max="100" step="0.01" placeholder="例如：20" inputmode="decimal" required></label>
+        </div>
+        <p class="trade-scope-note">估算口径：EXW 计入产品成本和其他费用；FOB 再计入包装/国内运输及港杂/报关；CFR 再加入国际运输；CIF 再加入保险。</p>
+        <div id="tradeQuoteError" class="message error" role="alert" hidden></div>
+        <div class="actions"><button type="submit" class="button primary">生成外贸报价</button><button type="button" id="clearTradeQuoteButton" class="button secondary">清空报价</button></div>
+      </form>
+
+      <section id="tradeQuoteResultSection" class="results" aria-live="polite" hidden>
+        <div class="result-heading"><div><h2>外贸报价结果</h2><p id="tradeQuoteStatus" class="status profit"></p></div><div class="profit-highlight"><span id="tradePrimaryLabel">每件美元报价</span><strong id="tradePrimaryQuote">$0.00</strong></div></div>
+        <div class="result-grid">
+          <div class="result-item"><span>总成本</span><strong id="tradeTotalCost">¥0.00</strong></div>
+          <div class="result-item"><span>单件成本</span><strong id="tradeUnitCost">¥0.00</strong></div>
+          <div class="result-item"><span>目标利润金额</span><strong id="tradeProfitAmount">¥0.00</strong></div>
+          <div class="result-item"><span>人民币报价（整批）</span><strong id="tradeQuoteRmb">¥0.00</strong></div>
+          <div class="result-item"><span>美元报价（整批）</span><strong id="tradeQuoteUsd">$0.00</strong></div>
+          <div class="result-item"><span>每件报价</span><strong id="tradeUnitQuote">¥0.00 / $0.00</strong></div>
+          <div class="result-item"><span>整批报价</span><strong id="tradeBatchQuote">¥0.00 / $0.00</strong></div>
+        </div>
+        <div class="cost-breakdown">
+          <h3>费用构成</h3>
+          <div class="cost-breakdown-grid"><div><span>产品成本</span><strong id="tradeProductCost"></strong></div><div><span>包装/国内物流</span><strong id="tradeDomesticIncluded"></strong></div><div><span>港杂/报关</span><strong id="tradePortIncluded"></strong></div><div><span>国际运输</span><strong id="tradeInternationalIncluded"></strong></div><div><span>保险</span><strong id="tradeInsuranceIncluded"></strong></div><div><span>其他费用</span><strong id="tradeOtherIncluded"></strong></div></div>
+        </div>
+        <section class="ai-analysis"><div class="ai-analysis-header"><div><h3>报价说明</h3><p>根据所选贸易术语显示本次估算范围。</p></div><span class="ai-label">本地测算</span></div><div class="analysis-block"><p id="tradeQuoteExplanation"></p></div></section>
+        <p class="quote-warning">本工具仅用于报价测算，实际费用组成和贸易术语责任请以合同及 Incoterms 规则为准。</p>
+        <div class="result-actions"><button type="button" id="exportTradePdfButton" class="button primary">导出外贸报价单</button></div>
+      </section>
+    </section>
+
     <footer>
       <div>Cross-border Profit Calculator</div>
-      <div>Version 3.0</div>
+      <div>Version 4.0</div>
       <div>仅供利润估算，实际费用请以平台账单为准。</div>
-      <div class="privacy-note">数据只在当前浏览器中计算，不会上传或保存。</div>
+      <div class="privacy-note">计算和文件分析在当前浏览器中完成；已保存产品存放在本浏览器 localStorage 中。</div>
     </footer>
   </main>
 
@@ -444,13 +562,14 @@
         <h1>跨境电商利润分析报告</h1>
         <p>生成日期：<span id="pdfDate"></span></p>
       </div>
-      <div class="pdf-version">V3.0</div>
+      <div class="pdf-version">V4.0</div>
     </header>
 
     <section class="pdf-section">
       <h2>商品信息</h2>
       <table class="pdf-table">
         <tbody>
+          <tr><th>产品名称</th><td id="pdfProductName"></td><th>SKU</th><td id="pdfSku"></td></tr>
           <tr><th>销售平台</th><td id="pdfPlatform"></td><th>商品数量</th><td id="pdfQuantity"></td></tr>
           <tr><th>商品售价</th><td id="pdfSalePrice"></td><th>美元兑人民币汇率</th><td id="pdfExchangeRate"></td></tr>
           <tr><th>单件采购成本</th><td id="pdfUnitPurchaseCost"></td><th>商品总成本</th><td id="pdfProductCost"></td></tr>
@@ -519,8 +638,31 @@
       </table>
     </section>
 
+    <section id="pdfBatchSection" class="pdf-section" hidden>
+      <h2>批量利润分析摘要</h2>
+      <table class="pdf-table"><tbody>
+        <tr><th>SKU 总数</th><td id="pdfBatchTotalCount"></td><th>盈利 / 亏损</th><td id="pdfBatchStatusCount"></td></tr>
+        <tr><th>总销售收入</th><td id="pdfBatchRevenue"></td><th>总利润</th><td id="pdfBatchProfit"></td></tr>
+        <tr><th>平均利润率</th><td id="pdfBatchAverageMargin"></td><th>文件</th><td id="pdfBatchFileName"></td></tr>
+      </tbody></table>
+    </section>
+
     <footer class="pdf-footer">本报告仅供利润估算，实际费用请以平台官方账单为准。</footer>
   </article>
+  <article id="batchPdfReport" class="pdf-report standalone-pdf-report" aria-label="批量利润分析摘要">
+    <header class="pdf-header"><div><p class="pdf-kicker">Cross-border Profit Calculator</p><h1>批量利润分析摘要</h1><p>生成日期：<span id="batchPdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
+    <section class="pdf-section"><div id="batchPdfSummary" class="pdf-summary-grid"></div></section>
+    <section class="pdf-section"><h2>SKU 分析结果</h2><table class="pdf-table pdf-batch-table"><thead><tr><th>SKU</th><th>产品名称</th><th>平台</th><th>净利润</th><th>利润率</th><th>状态</th></tr></thead><tbody id="batchPdfBody"></tbody></table></section>
+    <footer class="pdf-footer">批量结果使用与主利润计算器相同的计算公式，仅供估算。</footer>
+  </article>
+  <article id="tradePdfReport" class="pdf-report standalone-pdf-report" aria-label="外贸出口报价单">
+    <header class="pdf-header"><div><p class="pdf-kicker">Cross-border Profit Calculator</p><h1>外贸出口报价单</h1><p>生成日期：<span id="tradePdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
+    <section class="pdf-section"><h2>报价结果</h2><table class="pdf-table"><tbody id="tradePdfBody"></tbody></table></section>
+    <section class="pdf-section"><h2>报价说明</h2><p id="tradePdfExplanation" class="pdf-section-note"></p></section>
+    <footer class="pdf-footer">本工具仅用于报价测算，实际费用组成和贸易术语责任请以合同及 Incoterms 规则为准。</footer>
+  </article>
+  <script src="i18n.js"></script>
+  <script src="xlsx.full.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
