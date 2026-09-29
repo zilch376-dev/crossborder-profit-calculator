@@ -30,6 +30,79 @@ function setTopNavigationState(route) {
   });
 }
 
+// 统一双栏工具的页面结构：全宽标题，下方左侧输入、右侧结果。
+function normalizeSplitToolLayout() {
+  document.querySelectorAll('.split-tool').forEach(panel => {
+    const form = panel.querySelector(':scope > form');
+    const heading = form?.querySelector(':scope > .section-title');
+    const result = panel.querySelector(':scope > .results');
+    if (heading) {
+      heading.classList.add('tool-page-heading');
+      panel.prepend(heading);
+    }
+    form?.classList.add('tool-input-panel');
+    result?.classList.add('tool-output-panel');
+  });
+}
+
+// 为数字输入补充统一的右侧单位。只调整表单展示，不改变输入值。
+const inputUnitKeys = {
+  purchaseCost: 'ui.unitCny', shippingCost: 'ui.unitCny', advertisingCost: 'ui.unitCny', otherCost: 'ui.unitCny',
+  quotePurchaseCost: 'ui.unitCny', quoteShippingCost: 'ui.unitCny', quoteAdvertisingCost: 'ui.unitCny', quoteOtherCost: 'ui.unitCny',
+  scenarioAAdvertising: 'ui.unitCny', scenarioBAdvertising: 'ui.unitCny', scenarioCAdvertising: 'ui.unitCny',
+  tradePurchaseCost: 'ui.unitCny', tradeDomesticCost: 'ui.unitCny', tradePortCost: 'ui.unitCny',
+  tradeInternationalCost: 'ui.unitCny', tradeInsuranceCost: 'ui.unitCny', tradeOtherCost: 'ui.unitCny',
+  salePrice: 'ui.unitUsd', scenarioAPrice: 'ui.unitUsd', scenarioBPrice: 'ui.unitUsd', scenarioCPrice: 'ui.unitUsd',
+  exchangeRate: 'ui.unitRate', quoteExchangeRate: 'ui.unitRate', tradeExchangeRate: 'ui.unitRate',
+  commissionRate: 'ui.unitPercent', quoteCommissionRate: 'ui.unitPercent', quoteTargetProfitRate: 'ui.unitPercent',
+  safetyMarginRate: 'ui.unitPercent', comparisonWarningRate: 'ui.unitPercent', scenarioACommission: 'ui.unitPercent',
+  scenarioBCommission: 'ui.unitPercent', scenarioCCommission: 'ui.unitPercent', tradeTargetMargin: 'ui.unitPercent',
+  quantity: 'ui.unitQuantity', quoteQuantity: 'ui.unitQuantity', tradeQuantity: 'ui.unitQuantity'
+};
+
+function enhanceInputUnits() {
+  Object.entries(inputUnitKeys).forEach(([id, key]) => {
+    const input = document.getElementById(id);
+    if (!input || input.parentElement?.classList.contains('input-with-unit')) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'input-with-unit';
+    input.before(wrapper);
+    wrapper.appendChild(input);
+    const unit = document.createElement('span');
+    unit.className = 'input-unit';
+    unit.dataset.unitKey = key;
+    unit.textContent = t(key);
+    wrapper.appendChild(unit);
+  });
+}
+
+function parseDisplayedAmount(id) {
+  const text = document.getElementById(id)?.textContent || '';
+  const value = Number(text.replace(/[^0-9.-]/g, ''));
+  return Number.isFinite(value) ? value : 0;
+}
+
+function updateCostStructureBars() {
+  const result = document.getElementById('resultSection');
+  if (!result || result.hidden) return;
+  const total = parseDisplayedAmount('totalCost');
+  const values = {
+    Product: parseDisplayedAmount('productCost'),
+    Commission: parseDisplayedAmount('commission'),
+    Shipping: Number(document.getElementById('shippingCost').value) || 0,
+    Advertising: Number(document.getElementById('advertisingCost').value) || 0,
+    Other: Number(document.getElementById('otherCost').value) || 0
+  };
+  Object.entries(values).forEach(([name, amount]) => {
+    const percentage = total > 0 ? Math.max(0, Math.min(100, amount / total * 100)) : 0;
+    const rounded = Number(percentage.toFixed(1));
+    const progress = document.getElementById(`costBar${name}`);
+    const label = document.getElementById(`costShare${name}`);
+    if (progress && Number(progress.value) !== rounded) progress.value = rounded;
+    if (label && label.textContent !== `${rounded.toFixed(1)}%`) label.textContent = `${rounded.toFixed(1)}%`;
+  });
+}
+
 function updateToolTabs(group, selectedTab = null) {
   toolTabs.forEach(button => {
     const visible = button.dataset.toolGroup === group;
@@ -158,6 +231,8 @@ function createResultPlaceholder(panelId, resultId, titleKey, textKey) {
   return { placeholder, titleKey, textKey };
 }
 
+normalizeSplitToolLayout();
+enhanceInputUnits();
 const advancedUi = createAdvancedSettings();
 const resultPlaceholders = [
   createResultPlaceholder('calculatorSection', 'resultSection', 'ui.profitPlaceholderTitle', 'ui.profitPlaceholderText'),
@@ -165,6 +240,10 @@ const resultPlaceholders = [
   createResultPlaceholder('quoteAssistantSection', 'quoteResultSection', 'ui.pricingPlaceholderTitle', 'ui.pricingPlaceholderText'),
   createResultPlaceholder('tradeQuoteSection', 'tradeQuoteResultSection', 'ui.tradePlaceholderTitle', 'ui.tradePlaceholderText')
 ];
+
+const mainResultObserver = new MutationObserver(updateCostStructureBars);
+mainResultObserver.observe(document.getElementById('resultSection'), { attributes: true, childList: true, characterData: true, subtree: true });
+document.getElementById('profitForm').addEventListener('submit', () => requestAnimationFrame(updateCostStructureBars));
 
 function updateTradeTermUi() {
   const termSelect = document.getElementById('tradeTerm');
@@ -240,6 +319,29 @@ batchDropTrigger.addEventListener('click', () => batchDropFileInput.click());
 batchDropFileInput.addEventListener('change', updateDropZoneFile);
 updateDropZoneFile();
 
+// 只过滤已渲染的批量结果行，不触发或改变批量利润计算。
+const batchSearch = document.getElementById('batchSearch');
+function filterBatchRows() {
+  if (!batchSearch) return;
+  const query = batchSearch.value.trim().toLocaleLowerCase();
+  document.querySelectorAll('#batchResultBody tr').forEach(row => {
+    row.hidden = query.length > 0 && !row.textContent.toLocaleLowerCase().includes(query);
+  });
+}
+batchSearch?.addEventListener('input', filterBatchRows);
+if (document.getElementById('batchResultBody')) {
+  new MutationObserver(() => {
+    filterBatchRows();
+    document.querySelectorAll('#batchResultBody tr').forEach(row => {
+      const statusCell = row.lastElementChild;
+      if (!statusCell) return;
+      const statusText = statusCell.textContent.trim();
+      statusCell.classList.toggle('status-positive', statusText === t('status.profit'));
+      statusCell.classList.toggle('status-negative', statusText === t('status.loss'));
+    });
+  }).observe(document.getElementById('batchResultBody'), { childList: true });
+}
+
 menuToggle.addEventListener('click', () => {
   const open = primaryNavigation.classList.toggle('open');
   menuToggle.setAttribute('aria-expanded', String(open));
@@ -286,7 +388,9 @@ window.addEventListener('languagechange', () => {
     item.placeholder.querySelector('p').textContent = t(item.textKey);
   });
   menuToggle.setAttribute('aria-label', t('ui.openMenu'));
+  document.querySelectorAll('.input-unit[data-unit-key]').forEach(unit => { unit.textContent = t(unit.dataset.unitKey); });
   updateDropZoneFile();
+  updateCostStructureBars();
 });
 
 const initialTarget = location.hash.slice(1);

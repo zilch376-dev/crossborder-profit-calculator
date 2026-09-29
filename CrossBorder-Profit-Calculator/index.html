@@ -36,43 +36,88 @@
     <section id="homeSection" class="home-view" aria-labelledby="homeTitle">
       <div class="home-hero">
         <div class="hero-copy">
-          <div class="badge">跨境电商与外贸工具</div>
+          <div class="badge hero-eyebrow">CROSS-BORDER COMMERCE TOOLS</div>
           <h1 id="homeTitle">跨境电商利润与报价分析工具</h1>
-          <p>快速计算利润、成本、盈亏平衡与出口报价，帮助跨境卖家和外贸人员做出更清晰的经营决策。</p>
+          <p>快速计算利润、成本、盈亏平衡与出口报价，帮助跨境卖家和外贸人员更清晰地做经营决策。</p>
           <div class="hero-actions">
             <a class="button primary" href="#calculatorSection" data-tool-link="calculatorSection">开始利润分析</a>
             <a class="button secondary" href="#quoteAssistantSection" data-tool-link="quoteAssistantSection">生成商品报价</a>
           </div>
         </div>
-        <aside class="hero-summary" aria-label="工具概览">
-          <div><strong>8</strong><span>专业工具</span></div>
-          <div><strong>5</strong><span>平台模板</span></div>
-          <div><strong>100%</strong><span>浏览器本地处理</span></div>
+        <aside class="product-preview" aria-label="产品预览">
+          <div class="preview-toolbar"><span></span><span></span><span></span><small>利润分析</small></div>
+          <div class="preview-platform-row">
+            <div class="preview-platform"><span class="preview-platform-mark">A</span><div><strong>Amazon</strong><small>利润分析</small></div></div>
+            <span class="status-chip profit">盈利</span>
+          </div>
+          <div class="preview-selling-price"><span>商品售价</span><strong>$24.99</strong></div>
+          <div class="preview-metrics">
+            <div class="preview-primary-metric"><span>净利润</span><strong>¥682.00</strong></div>
+            <div><span>利润率</span><strong>48.03%</strong></div>
+          </div>
+          <div class="preview-breakdown">
+            <div><span>销售收入</span><strong>¥1,420</strong></div>
+            <div><span>总成本</span><strong>¥738</strong></div>
+            <div><span>单件利润</span><strong>¥68.20</strong></div>
+          </div>
+          <p class="preview-ai"><span>AI Insight</span>利润空间良好，建议继续关注平台佣金和广告投入。</p>
         </aside>
       </div>
 
       <div class="core-features" aria-label="核心功能">
         <article class="feature-card">
-          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></div>
-          <h2>利润分析</h2><p>计算收入、成本、净利润和利润率。</p>
+          <div class="feature-card-top"><span class="feature-eyebrow">利润工具</span><div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg></div></div>
+          <h2>利润分析</h2><p>快速查看收入、成本与盈利表现。</p>
           <a class="feature-action" href="#calculatorSection" data-tool-link="calculatorSection">进入工具</a>
         </article>
         <article class="feature-card">
-          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18M6 3v4m12-4v4M5 11h14v9H5zM8 15h4"/></svg></div>
-          <h2>商品报价</h2><p>根据成本和目标利润率反推合理售价。</p>
+          <div class="feature-card-top"><span class="feature-eyebrow">报价工具</span><div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18M6 3v4m12-4v4M5 11h14v9H5zM8 15h4"/></svg></div></div>
+          <h2>商品报价</h2><p>根据成本与目标利润率反推售价。</p>
           <a class="feature-action" href="#quoteAssistantSection" data-tool-link="quoteAssistantSection">进入工具</a>
         </article>
         <article class="feature-card">
-          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 11h8M8 15h8M8 7h4"/></svg></div>
-          <h2>批量分析</h2><p>通过 Excel / CSV 批量分析多个 SKU。</p>
+          <div class="feature-card-top"><span class="feature-eyebrow">数据工具</span><div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 11h8M8 15h8M8 7h4"/></svg></div></div>
+          <h2>批量分析</h2><p>用 Excel / CSV 批量计算多个 SKU。</p>
           <a class="feature-action" href="#batchAnalysisSection" data-tool-link="batchAnalysisSection">进入工具</a>
         </article>
         <article class="feature-card">
-          <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18h18M5 18V8h14v10M8 8V5h8v3m-6 4h4"/></svg></div>
-          <h2>外贸报价</h2><p>支持 EXW、FOB、CFR、CIF 报价测算。</p>
+          <div class="feature-card-top"><span class="feature-eyebrow">报价工具</span><div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18h18M5 18V8h14v10M8 8V5h8v3m-6 4h4"/></svg></div></div>
+          <h2>外贸报价</h2><p>测算 EXW、FOB、CFR、CIF 报价。</p>
           <a class="feature-action" href="#tradeQuoteSection" data-tool-link="tradeQuoteSection">进入工具</a>
         </article>
       </div>
+
+      <section class="product-showcase" aria-labelledby="productShowcaseTitle">
+        <div class="showcase-copy">
+          <span class="showcase-eyebrow">BUILT FOR BETTER DECISIONS</span>
+          <h2 id="productShowcaseTitle">从成本到报价，一套工具完成</h2>
+          <p>把分散的成本数据和定价判断放进清晰的工作流，让每个 SKU 的表现一目了然。</p>
+          <ul class="showcase-capabilities">
+            <li>利润计算与盈亏平衡分析</li>
+            <li>SKU 管理与批量分析</li>
+            <li>EXW / FOB / CFR / CIF 报价</li>
+            <li>PDF 报告与结果导出</li>
+          </ul>
+        </div>
+        <div class="showcase-window">
+          <div class="showcase-window-head"><div><span class="showcase-dot"></span><span class="showcase-dot"></span><span class="showcase-dot"></span></div><strong>SKU Table</strong><span>3 products</span></div>
+          <div class="showcase-table-head"><span>PRODUCT</span><span>PLATFORM</span><span>PRICE</span><span>MARGIN</span></div>
+          <div class="showcase-row"><div class="showcase-product"><span class="sku-avatar avatar-blue">S</span><div><strong>SKU-001</strong><small>Insulated bottle</small></div></div><span class="platform-pill">Amazon</span><strong>$24.99</strong><span class="showcase-profit">Profit 28.5%</span></div>
+          <div class="showcase-row"><div class="showcase-product"><span class="sku-avatar avatar-gray">E</span><div><strong>SKU-002</strong><small>Travel organizer</small></div></div><span class="platform-pill">eBay</span><strong>$19.99</strong><span class="showcase-profit">Profit 16.2%</span></div>
+          <div class="showcase-row"><div class="showcase-product"><span class="sku-avatar avatar-soft">S</span><div><strong>SKU-003</strong><small>Desk accessory</small></div></div><span class="platform-pill">Shopify</span><strong>$32.00</strong><span class="showcase-profit">Profit 34.1%</span></div>
+          <div class="showcase-window-foot"><span>Margin overview</span><span>Updated just now</span></div>
+        </div>
+      </section>
+
+      <section class="workflow-section" aria-labelledby="workflowTitle">
+        <div class="workflow-heading"><span>工作流程</span><h2 id="workflowTitle">从数据到决策，只需4步</h2><p>一套清晰流程，帮助你快速完成利润分析和报价决策。</p></div>
+        <div class="workflow-grid">
+          <article><span class="workflow-number">01</span><div class="workflow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></div><h3>输入成本</h3><p>录入采购、物流和平台费用。</p></article>
+          <article><span class="workflow-number">02</span><div class="workflow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19V9m5 10V5m5 14v-7m4 7H3"/></svg></div><h3>计算利润</h3><p>得到净利润、利润率和单件利润。</p></article>
+          <article><span class="workflow-number">03</span><div class="workflow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3zM12 9v4m0 3h.01"/></svg></div><h3>分析风险</h3><p>识别成本占比与利润率风险。</p></article>
+          <article><span class="workflow-number">04</span><div class="workflow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM7 10h10M7 14h6"/></svg></div><h3>生成报价</h3><p>输出商品或外贸建议报价。</p></article>
+        </div>
+      </section>
     </section>
 
     <section id="toolContextBar" class="tool-context-bar" aria-label="工具导航" hidden>
@@ -92,7 +137,7 @@
     <section id="calculatorSection" class="calculator-card tool-panel split-tool" data-tool-group="profit" aria-label="利润计算器" hidden>
       <form id="profitForm" novalidate>
         <div class="section-title">
-          <h2>填写商品信息</h2>
+          <h2>利润计算</h2>
           <span>金额单位：人民币，售价为美元</span>
         </div>
 
@@ -176,12 +221,22 @@
           <div class="result-item"><span>销售收入（人民币）</span><strong id="revenue">¥0.00</strong></div>
           <div class="result-item"><span>商品总成本</span><strong id="productCost">¥0.00</strong></div>
           <div class="result-item"><span>平台佣金</span><strong id="commission">¥0.00</strong></div>
-          <div class="result-item"><span>总费用</span><strong id="totalCost">¥0.00</strong></div>
+          <div class="result-item key-metric"><span>总费用</span><strong id="totalCost">¥0.00</strong></div>
           <div class="result-item"><span>单件总成本（估算）</span><strong id="unitTotalCost">¥0.00</strong></div>
-          <div class="result-item"><span>单件利润</span><strong id="unitProfit">¥0.00</strong></div>
-          <div class="result-item"><span>利润率</span><strong id="profitRate">0.00%</strong></div>
+          <div class="result-item key-metric"><span>单件利润</span><strong id="unitProfit">¥0.00</strong></div>
+          <div class="result-item key-metric"><span>利润率</span><strong id="profitRate">0.00%</strong></div>
           <div class="result-item"><span>成本占销售额比例</span><strong id="costRate">0.00%</strong></div>
         </div>
+        <section id="costStructurePanel" class="cost-structure" aria-labelledby="costStructureTitle">
+          <div class="cost-structure-heading"><div><span>成本结构</span><h3 id="costStructureTitle">费用占总成本比例</h3></div><small>根据当前计算结果自动更新</small></div>
+          <div class="cost-bar-list">
+            <div class="cost-bar-row"><div><span>采购成本</span><strong id="costShareProduct">0.0%</strong></div><progress id="costBarProduct" max="100" value="0">0%</progress></div>
+            <div class="cost-bar-row"><div><span>平台佣金</span><strong id="costShareCommission">0.0%</strong></div><progress id="costBarCommission" max="100" value="0">0%</progress></div>
+            <div class="cost-bar-row"><div><span>物流</span><strong id="costShareShipping">0.0%</strong></div><progress id="costBarShipping" max="100" value="0">0%</progress></div>
+            <div class="cost-bar-row"><div><span>广告</span><strong id="costShareAdvertising">0.0%</strong></div><progress id="costBarAdvertising" max="100" value="0">0%</progress></div>
+            <div class="cost-bar-row"><div><span>其他费用</span><strong id="costShareOther">0.0%</strong></div><progress id="costBarOther" max="100" value="0">0%</progress></div>
+          </div>
+        </section>
         <p class="formula-note">总费用 = 商品总成本 + 国际物流 + 平台佣金 + 广告费用 + 其他费用</p>
         <div class="result-actions">
           <button type="button" id="aiAnalysisButton" class="button secondary">AI利润分析</button>
@@ -191,7 +246,7 @@
         <section id="aiAnalysisSection" class="ai-analysis" aria-live="polite" hidden>
           <div class="ai-analysis-header">
             <div>
-              <h3>AI利润分析报告</h3>
+              <h3>AI 洞察</h3>
               <p>根据当前计算结果，由本地规则生成，仅供经营决策参考。</p>
             </div>
             <span class="ai-label">本地分析</span>
@@ -539,6 +594,7 @@
           <div><span>平均利润率</span><strong id="batchAverageMargin">0.00%</strong></div>
         </div>
         <div class="batch-controls">
+          <label class="field batch-search-field"><span>搜索 SKU 或产品</span><input id="batchSearch" type="search" placeholder="输入 SKU 或产品名称"></label>
           <label class="field"><span>筛选</span><select id="batchFilter"><option value="all">全部</option><option value="profit">盈利</option><option value="loss">亏损</option></select></label>
           <label class="field"><span>排序</span><select id="batchSort"><option value="sku">按 SKU</option><option value="profit-desc">按净利润（高到低）</option><option value="profit-asc">按净利润（低到高）</option><option value="margin-desc">按利润率（高到低）</option><option value="margin-asc">按利润率（低到高）</option></select></label>
           <button type="button" id="exportBatchCsvButton" class="button secondary">导出分析结果 CSV</button>
@@ -611,11 +667,13 @@
       </section>
     </section>
 
-    <footer>
-      <div>Cross-border Profit Calculator</div>
-      <div>Version 4.0</div>
-      <div>仅供利润估算，实际费用请以平台账单为准。</div>
-      <div class="privacy-note">计算和文件分析在当前浏览器中完成；已保存产品存放在本浏览器 localStorage 中。</div>
+    <footer class="site-footer">
+      <div class="footer-main">
+        <div class="footer-identity"><div class="footer-brand"><span class="brand-mark" aria-hidden="true">CB</span><span>CrossBorder Profit</span></div><p>跨境电商利润与报价分析工具</p></div>
+        <nav class="footer-links" aria-label="页脚导航"><h3>导航</h3><a href="#calculatorSection" data-tool-link="calculatorSection">利润工具</a><a href="#quoteAssistantSection" data-tool-link="quoteAssistantSection">报价工具</a><a href="#productManagerSection" data-tool-link="productManagerSection">数据工具</a></nav>
+        <nav class="footer-links" aria-label="辅助链接"><h3>辅助</h3><a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a><a href="#siteDisclaimer">免责声明</a></nav>
+      </div>
+      <div class="footer-bottom"><span>© 2026 CrossBorder Profit</span><span id="siteDisclaimer">仅用于利润与报价估算</span></div>
     </footer>
   </main>
 
@@ -623,7 +681,7 @@
   <article id="pdfReport" class="pdf-report" aria-label="跨境电商利润分析报告">
     <header class="pdf-header">
       <div>
-        <p class="pdf-kicker">Cross-border Profit Calculator</p>
+        <p class="pdf-kicker">CrossBorder Profit</p>
         <h1>跨境电商利润分析报告</h1>
         <p>生成日期：<span id="pdfDate"></span></p>
       </div>
@@ -715,13 +773,13 @@
     <footer class="pdf-footer">本报告仅供利润估算，实际费用请以平台官方账单为准。</footer>
   </article>
   <article id="batchPdfReport" class="pdf-report standalone-pdf-report" aria-label="批量利润分析摘要">
-    <header class="pdf-header"><div><p class="pdf-kicker">Cross-border Profit Calculator</p><h1>批量利润分析摘要</h1><p>生成日期：<span id="batchPdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
+    <header class="pdf-header"><div><p class="pdf-kicker">CrossBorder Profit</p><h1>批量利润分析摘要</h1><p>生成日期：<span id="batchPdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
     <section class="pdf-section"><div id="batchPdfSummary" class="pdf-summary-grid"></div></section>
     <section class="pdf-section"><h2>SKU 分析结果</h2><table class="pdf-table pdf-batch-table"><thead><tr><th>SKU</th><th>产品名称</th><th>平台</th><th>净利润</th><th>利润率</th><th>状态</th></tr></thead><tbody id="batchPdfBody"></tbody></table></section>
     <footer class="pdf-footer">批量结果使用与主利润计算器相同的计算公式，仅供估算。</footer>
   </article>
   <article id="tradePdfReport" class="pdf-report standalone-pdf-report" aria-label="外贸出口报价单">
-    <header class="pdf-header"><div><p class="pdf-kicker">Cross-border Profit Calculator</p><h1>外贸出口报价单</h1><p>生成日期：<span id="tradePdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
+    <header class="pdf-header"><div><p class="pdf-kicker">CrossBorder Profit</p><h1>外贸出口报价单</h1><p>生成日期：<span id="tradePdfDate"></span></p></div><div class="pdf-version">V4.0</div></header>
     <section class="pdf-section"><h2>报价结果</h2><table class="pdf-table"><tbody id="tradePdfBody"></tbody></table></section>
     <section class="pdf-section"><h2>报价说明</h2><p id="tradePdfExplanation" class="pdf-section-note"></p></section>
     <footer class="pdf-footer">本工具仅用于报价测算，实际费用组成和贸易术语责任请以合同及 Incoterms 规则为准。</footer>
