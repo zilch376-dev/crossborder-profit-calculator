@@ -179,7 +179,8 @@
 .split-tool.active .result-grid,
 .split-tool.active .results-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  /* 结果面板只有半页宽；两列才能给大额数字留下足够空间。 */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -202,6 +203,7 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 .split-tool.active :is(details, .advanced-settings) {
@@ -321,7 +323,7 @@
   .split-tool.active { grid-template-columns: minmax(0, 1fr) !important; gap: 16px; padding-inline: 16px; }
   .split-tool.active > :is(form, .input-panel, .tool-input-panel) { padding: 18px; }
   .split-tool.active .result-grid,
-  .split-tool.active .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .split-tool.active .results-grid { grid-template-columns: minmax(0, 1fr); }
   .split-tool.active :is(table, .data-table) { min-width: 680px; }
   .split-tool.active :is(.table-wrap, .table-container) { overflow-x: auto; }
 }
