@@ -1,0 +1,222 @@
+/* 内部工具页细节样式。选择器限定在工具区，首页视觉不受影响。 */
+
+/* 工具子导航使用轻量分段控件，保留键盘焦点与现有切换行为。 */
+#toolContextBar .tool-tabs {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-subtle);
+}
+
+#toolContextBar .tool-tabs button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 550;
+  line-height: 1.5;
+  box-shadow: none;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+#toolContextBar .tool-tabs button:hover {
+  color: var(--text-primary);
+  background: #fff;
+}
+
+#toolContextBar .tool-tabs button.active {
+  color: var(--text-primary);
+  background: #fff;
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .06);
+}
+
+/* 利润和外贸报价共用相同的结果空状态。 */
+#calculatorSection > .result-placeholder,
+#tradeQuoteSection > .result-placeholder {
+  min-height: 320px;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px;
+  background: #fafbfc;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .035);
+}
+
+#calculatorSection > .result-placeholder p,
+#tradeQuoteSection > .result-placeholder p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 批量导入：未选文件时为拖拽区，选中后收为紧凑文件状态。 */
+#batchDropZone:not(.has-file) {
+  display: grid;
+  min-height: 148px;
+  padding: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: #fafbfc;
+}
+
+#batchDropZone.dragging {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+#batchDropZone .drop-zone-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-self: stretch;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+#batchDropZone .drop-zone-icon {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f0f4fb;
+  font-size: 17px;
+}
+
+#batchDropZone .drop-zone-copy strong {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+#batchDropZone .drop-zone-copy small,
+#batchDropZone .batch-upload-format {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+#batchDropZone .batch-upload-format { color: var(--text-tertiary); }
+
+#batchDropZone .file-field { margin: 0; }
+
+/* 拖拽框只承载文件选择；提示与分析操作在框外，手机端也保持紧凑。 */
+.batch-analysis-card > .batch-upload-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.batch-analysis-card > .batch-upload-hints span::before {
+  margin-right: 5px;
+  color: var(--brand);
+  content: "✓";
+}
+
+.batch-analysis-card > .batch-template-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.batch-analysis-card > .batch-template-actions .button {
+  min-height: 40px;
+  padding: 8px 13px;
+  font-size: 12.5px;
+}
+
+#batchDropZone.has-file {
+  display: flex;
+  min-height: 0;
+  padding: 10px 14px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+#batchDropZone.has-file .batch-upload-format,
+#batchDropZone.has-file .drop-zone-icon { display: none; }
+
+#batchDropZone.has-file .drop-zone-copy {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 1px;
+  text-align: left;
+}
+
+#batchDropZone.has-file .drop-zone-copy strong { overflow-wrap: anywhere; }
+
+/* 外贸术语缩写在分段按钮中，解释在按钮下方。 */
+#tradeQuoteSection.active { margin-top: 24px; }
+
+#tradeQuoteSection .trade-term-current {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 2px 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+#tradeQuoteSection .trade-term-current strong {
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+/* 辅助信息在 Windows Chrome 下保持可辨认的字级与行高。 */
+#toolContextBar .tool-context-kicker,
+.tool-panel :is(.field-note, .formula-note, .export-note, .trade-scope-note, .quote-warning, .input-unit),
+.tool-panel :is(.section-title > span, .result-item span, .profit-highlight span),
+.tool-panel :is(.cost-structure-heading span, .cost-structure-heading small, .cost-bar-row span, .cost-bar-row strong),
+.tool-panel :is(.ai-analysis-header p, .ai-label, .analysis-block h4, .analysis-block p, .analysis-block ol),
+.tool-panel :is(.batch-summary-grid span, .data-table thead th, .status),
+.tool-panel .advanced-settings summary small {
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+}
+
+.tool-panel :is(.data-table, .table-button, .metric-positive, .metric-negative, .metric-caution, .message) {
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+}
+
+@media (max-width: 650px) {
+  #toolContextBar .tool-tabs {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #toolContextBar .tool-tabs button { width: 100%; }
+
+  #calculatorSection > .result-placeholder,
+  #tradeQuoteSection > .result-placeholder { min-height: 220px; }
+  .batch-analysis-card > .batch-template-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .batch-analysis-card > .batch-template-actions .button {
+    flex: none;
+    width: 100%;
+    min-height: 42px;
+  }
+}

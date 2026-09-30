@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="components.css">
   <link rel="stylesheet" href="responsive.css">
+  <link rel="stylesheet" href="tools.css">
 </head>
 <body>
   <header class="app-topbar">
@@ -569,16 +570,22 @@
         <button type="button" id="batchDropTrigger" class="drop-zone-copy" aria-label="拖入 Excel 或 CSV 文件，或选择文件">
           <span class="drop-zone-icon">⇧</span>
           <strong>拖入 Excel / CSV 文件</strong>
-          <small>或点击下方选择文件，支持 .csv 和 .xlsx</small>
+          <small>或点击选择文件</small>
+          <span class="batch-upload-format">支持 .csv / .xlsx</span>
         </button>
-        <label class="field file-field">
+        <label class="field file-field sr-only">
           <span>选择批量分析文件</span>
-          <input id="batchFile" type="file" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
+          <input id="batchFile" type="file" tabindex="-1" accept=".csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
         </label>
-        <div class="batch-template-actions">
-          <button type="button" id="downloadBatchTemplateButton" class="button secondary">下载批量分析模板</button>
-          <button type="button" id="analyzeBatchButton" class="button primary">开始批量分析</button>
-        </div>
+      </div>
+      <div class="batch-upload-hints" aria-label="文件处理说明">
+        <span>支持中英文列名</span>
+        <span>数据仅在浏览器本地处理</span>
+        <span>文件不会上传到服务器</span>
+      </div>
+      <div class="batch-template-actions">
+        <button type="button" id="downloadBatchTemplateButton" class="button secondary">下载批量分析模板</button>
+        <button type="button" id="analyzeBatchButton" class="button primary">开始批量分析</button>
       </div>
       <p class="field-note">必需列：SKU、产品名称、平台、单件采购成本、商品售价USD、汇率、商品数量、物流总费用、平台佣金比例、广告总费用、其他总费用。</p>
       <div id="batchError" class="message error" role="alert" hidden></div>
@@ -628,6 +635,7 @@
               <button type="button" role="tab" data-trade-term="CFR" aria-selected="false">CFR</button>
               <button type="button" role="tab" data-trade-term="CIF" aria-selected="false">CIF</button>
             </div>
+            <div class="trade-term-current" aria-live="polite"><strong id="tradeTermCurrentCode">EXW</strong><span id="tradeTermDescription">工厂交货</span></div>
             <select id="tradeTerm" class="sr-only" tabindex="-1" aria-hidden="true"><option value="EXW">EXW</option><option value="FOB">FOB</option><option value="CFR">CFR</option><option value="CIF">CIF</option></select>
           </div>
           <label class="field"><span>报价单位</span><select id="tradeQuoteUnit"><option value="unit">每件</option><option value="batch">整批</option></select></label>

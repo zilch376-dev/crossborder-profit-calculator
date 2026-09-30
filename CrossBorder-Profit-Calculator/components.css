@@ -88,6 +88,244 @@
   .feature-card { min-height: 204px; padding: 20px; }
 }
 
+/* 内部工具页统一视觉：仅作用于工具工作区，不改首页模块或业务行为。 */
+.tool-page-heading {
+  max-width: 1240px;
+  margin: 0 auto 24px;
+  padding: 12px 0 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.tool-page-heading :is(h1, h2) {
+  margin: 8px 0 8px;
+  color: var(--text-primary);
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+}
+
+.tool-page-heading :is(p, .tool-description) {
+  max-width: 680px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.split-tool.active {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+  gap: 24px;
+  max-width: 1240px;
+  margin-inline: auto;
+}
+
+.split-tool.active > :is(form, .input-panel, .tool-input-panel) {
+  min-width: 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.035);
+}
+
+.split-tool.active > :is(.result-panel, .results-panel, .tool-results) {
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.split-tool.active :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  box-sizing: border-box;
+  min-height: 46px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.split-tool.active :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus-visible {
+  border-color: var(--brand);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(49, 91, 214, 0.12);
+}
+
+.split-tool.active label {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.split-tool.active :is(small, .hint, .field-hint, .helper-text) {
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.split-tool.active :is(button, .button) {
+  min-height: 42px;
+  border-radius: 8px;
+  font-weight: 550;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.split-tool.active .result-grid,
+.split-tool.active .results-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.split-tool.active :is(.result-item, .metric-card, .result-card) {
+  min-width: 0;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.split-tool.active :is(.result-item, .metric-card, .result-card) :is(span, .label, .metric-label) {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.split-tool.active :is(.result-item, .metric-card, .result-card) :is(strong, .value, .metric-value) {
+  color: var(--text-primary);
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+
+.split-tool.active :is(details, .advanced-settings) {
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.split-tool.active :is(details, .advanced-settings) > summary {
+  padding: 14px 0;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.split-tool.active :is(table, .data-table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.split-tool.active :is(th, td) {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.split-tool.active th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.split-tool.active :is(.ai-analysis, .ai-insight, .insight-panel) {
+  padding: 18px;
+  background: var(--brand-soft);
+  border: 1px solid rgba(49, 91, 214, 0.1);
+  border-radius: 12px;
+}
+
+.split-tool.active :is(.empty-state, .no-results) {
+  padding: 28px 20px;
+  color: var(--text-secondary);
+  text-align: center;
+  background: #fafbfc !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.035);
+}
+
+/* 独立数据/报价工具复用相同的工作台宽度和面板视觉。 */
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) {
+  width: min(100% - 32px, 1240px);
+  margin-inline: auto;
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) :is(.panel, .input-panel, .summary-panel, .results-panel) {
+  min-width: 0;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.035);
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: 46px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) :is(input, select, textarea):focus-visible {
+  border-color: var(--brand);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(49, 91, 214, 0.12);
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) :is(table, .data-table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) :is(th, td) {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+:is(.sku-manager, .product-manager, .batch-analysis, .bulk-analysis, .scenario-comparison, .export-quotation, .trade-quotation) tbody tr:hover td {
+  background: var(--surface-subtle);
+}
+
+@media (max-width: 900px) {
+  .split-tool.active { grid-template-columns: minmax(0, 1fr) !important; }
+  .split-tool.active .result-grid,
+  .split-tool.active .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+  .tool-page-heading { margin-bottom: 18px; padding-inline: 16px; }
+  .split-tool.active { grid-template-columns: minmax(0, 1fr) !important; gap: 16px; padding-inline: 16px; }
+  .split-tool.active > :is(form, .input-panel, .tool-input-panel) { padding: 18px; }
+  .split-tool.active .result-grid,
+  .split-tool.active .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .split-tool.active :is(table, .data-table) { min-width: 680px; }
+  .split-tool.active :is(.table-wrap, .table-container) { overflow-x: auto; }
+}
+
 :root {
   --brand: #1d4ed8;
   --brand-hover: #1e40af;

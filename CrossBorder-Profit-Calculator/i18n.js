@@ -903,6 +903,36 @@ Object.assign(translations.en, {
   'ui.footerEnglishTagline': 'Profit & quotation tools for global commerce.'
 });
 
+// 内部工具页精修文案，沿用同一套翻译字典。
+Object.assign(translations.zh, {
+  'ui.analysisEmptyTitle': '暂无分析结果',
+  'ui.analysisEmptyText': '填写左侧参数并开始计算，这里会显示详细结果。',
+  'ui.dropFileHint': '或点击选择文件',
+  'ui.batchFormats': '支持 .csv / .xlsx',
+  'ui.batchColumnsHint': '支持中英文列名',
+  'ui.batchLocalHint': '数据仅在浏览器本地处理',
+  'ui.batchNoUploadHint': '文件不会上传到服务器',
+  'ui.batchProcessingInfo': '文件处理说明',
+  'ui.tradeTermNameEXW': '工厂交货',
+  'ui.tradeTermNameFOB': '船上交货',
+  'ui.tradeTermNameCFR': '成本加运费',
+  'ui.tradeTermNameCIF': '成本、保险费加运费'
+});
+Object.assign(translations.en, {
+  'ui.analysisEmptyTitle': 'No analysis yet',
+  'ui.analysisEmptyText': 'Enter the parameters on the left and start calculating to see detailed results here.',
+  'ui.dropFileHint': 'or click to choose a file',
+  'ui.batchFormats': 'Supports .csv / .xlsx',
+  'ui.batchColumnsHint': 'Chinese and English column names supported',
+  'ui.batchLocalHint': 'Data is processed in your browser',
+  'ui.batchNoUploadHint': 'Files are not uploaded to a server',
+  'ui.batchProcessingInfo': 'File handling information',
+  'ui.tradeTermNameEXW': 'Ex Works',
+  'ui.tradeTermNameFOB': 'Free on Board',
+  'ui.tradeTermNameCFR': 'Cost and Freight',
+  'ui.tradeTermNameCIF': 'Cost, Insurance and Freight'
+});
+
 const languageStorageKey = 'crossBorderProfitLanguage';
 let currentLanguage = 'zh';
 const textNodeKeys = new WeakMap();

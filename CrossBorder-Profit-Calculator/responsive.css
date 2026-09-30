@@ -54,6 +54,126 @@ a:has(.feature-category):hover,
   box-shadow: var(--shadow-2) !important;
 }
 
+/* 首页四张入口卡片的精细样式，作用域限制在功能入口网格内。 */
+.feature-grid {
+  column-gap: 14px !important;
+  row-gap: 16px !important;
+  margin-top: 24px !important;
+}
+
+.feature-grid > * {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 7px !important;
+  height: 100% !important;
+  min-height: 224px !important;
+  padding: 24px 22px 26px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.035) !important;
+  background: var(--surface) !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease !important;
+}
+
+.feature-grid > *:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(49, 91, 214, 0.24) !important;
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.06) !important;
+}
+
+.feature-grid > *,
+.home-feature-grid > *,
+.core-feature-grid > *,
+.feature-cards > *,
+.home-feature-cards > *,
+.feature-card,
+.home-feature-card,
+.core-feature-card,
+.feature-link-card,
+.feature-item,
+a:has(.feature-category) {
+  box-sizing: border-box !important;
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 7px !important;
+}
+
+.feature-grid,
+.home-feature-grid,
+.core-feature-grid,
+.feature-cards,
+.home-feature-cards {
+  column-gap: 0 !important;
+  row-gap: 0 !important;
+}
+
+.feature-grid > * .feature-category,
+.feature-grid > * .feature-card-label,
+.feature-grid > * .feature-tag,
+.feature-grid > * .feature-label,
+.feature-grid > * .feature-kicker,
+.feature-grid > * .feature-eyebrow {
+  width: auto !important;
+  max-width: calc(100% - 48px) !important;
+  margin: 0 !important;
+  color: var(--text-tertiary) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  opacity: 0.78 !important;
+  text-overflow: clip !important;
+}
+
+.feature-grid > * .feature-icon,
+.feature-grid > * .feature-card-icon {
+  top: 18px !important;
+  right: 18px !important;
+  display: grid !important;
+  width: 34px !important;
+  height: 34px !important;
+  place-items: center !important;
+  color: var(--brand) !important;
+  background: var(--surface-subtle) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+
+.feature-grid > * h3,
+.feature-grid > * .feature-title {
+  margin: 24px 0 8px !important;
+  font-weight: 600 !important;
+}
+
+.feature-grid > * p,
+.feature-grid > * .feature-description {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+}
+
+.feature-grid > * .feature-link,
+.feature-grid > * .feature-card-link,
+.feature-grid > * .feature-arrow {
+  margin-top: auto !important;
+  padding-top: 20px !important;
+  padding-bottom: 2px !important;
+  transition: transform 180ms ease !important;
+}
+
+.feature-grid > *:hover .feature-link,
+.feature-grid > *:hover .feature-card-link,
+.feature-grid > *:hover .feature-arrow {
+  transform: translateX(2px) !important;
+}
+
 .feature-category,
 .feature-card-label,
 .feature-tag,
@@ -111,8 +231,20 @@ a:has(.feature-category):hover,
   .home-feature-cards,
   main div:has(> a:has(.feature-category)) {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 16px !important;
+    gap: 0 !important;
   }
+
+  .feature-grid > *,
+  .home-feature-grid > *,
+  .core-feature-grid > *,
+  .feature-cards > *,
+  .home-feature-cards > *,
+  .feature-card,
+  .home-feature-card,
+  .core-feature-card,
+  .feature-link-card,
+  .feature-item,
+  a:has(.feature-category) { margin: 0 6px 12px !important; }
 }
 
 @media (max-width: 560px) {
@@ -123,8 +255,20 @@ a:has(.feature-category):hover,
   .home-feature-cards,
   main div:has(> a:has(.feature-category)) {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 0 !important;
   }
+
+  .feature-grid > *,
+  .home-feature-grid > *,
+  .core-feature-grid > *,
+  .feature-cards > *,
+  .home-feature-cards > *,
+  .feature-card,
+  .home-feature-card,
+  .core-feature-card,
+  .feature-link-card,
+  .feature-item,
+  a:has(.feature-category) { margin: 0 0 12px !important; }
 
   .feature-card,
   .home-feature-card,

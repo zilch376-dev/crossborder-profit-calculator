@@ -235,19 +235,29 @@ normalizeSplitToolLayout();
 enhanceInputUnits();
 const advancedUi = createAdvancedSettings();
 const resultPlaceholders = [
-  createResultPlaceholder('calculatorSection', 'resultSection', 'ui.profitPlaceholderTitle', 'ui.profitPlaceholderText'),
+  createResultPlaceholder('calculatorSection', 'resultSection', 'ui.analysisEmptyTitle', 'ui.analysisEmptyText'),
   createResultPlaceholder('breakEvenSection', 'breakEvenResultSection', 'ui.breakEvenPlaceholderTitle', 'ui.breakEvenPlaceholderText'),
   createResultPlaceholder('quoteAssistantSection', 'quoteResultSection', 'ui.pricingPlaceholderTitle', 'ui.pricingPlaceholderText'),
-  createResultPlaceholder('tradeQuoteSection', 'tradeQuoteResultSection', 'ui.tradePlaceholderTitle', 'ui.tradePlaceholderText')
+  createResultPlaceholder('tradeQuoteSection', 'tradeQuoteResultSection', 'ui.analysisEmptyTitle', 'ui.analysisEmptyText')
 ];
 
 const mainResultObserver = new MutationObserver(updateCostStructureBars);
 mainResultObserver.observe(document.getElementById('resultSection'), { attributes: true, childList: true, characterData: true, subtree: true });
 document.getElementById('profitForm').addEventListener('submit', () => requestAnimationFrame(updateCostStructureBars));
 
+function updateTradeTermDescription() {
+  const term = document.getElementById('tradeTerm').value;
+  document.getElementById('tradeTermCurrentCode').textContent = term;
+  document.getElementById('tradeTermDescription').textContent = t(`ui.tradeTermName${term}`);
+  document.querySelectorAll('[data-trade-term]').forEach(button => {
+    button.textContent = button.dataset.tradeTerm;
+  });
+}
+
 function updateTradeTermUi() {
   const termSelect = document.getElementById('tradeTerm');
   const term = termSelect.value;
+  updateTradeTermDescription();
   document.querySelectorAll('[data-trade-term]').forEach(button => {
     const active = button.dataset.tradeTerm === term;
     button.classList.toggle('active', active);
@@ -390,6 +400,7 @@ window.addEventListener('languagechange', () => {
   menuToggle.setAttribute('aria-label', t('ui.openMenu'));
   document.querySelectorAll('.input-unit[data-unit-key]').forEach(unit => { unit.textContent = t(unit.dataset.unitKey); });
   updateDropZoneFile();
+  updateTradeTermDescription();
   updateCostStructureBars();
 });
 
